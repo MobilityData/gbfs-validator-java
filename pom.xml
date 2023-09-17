@@ -73,7 +73,7 @@
         <versions-maven-plugin.version>2.16.0</versions-maven-plugin.version>
         <dependency-check-maven.version>5.3.2</dependency-check-maven.version>
         <maven-scm-provider-gitexe.version>1.13.0</maven-scm-provider-gitexe.version>
-        <maven-scm-api.version>1.13.0</maven-scm-api.version>
+        <maven-scm-api.version>2.0.1</maven-scm-api.version>
         <gitflow-maven-plugin.version>1.20.0</gitflow-maven-plugin.version>
 
         <!-- empty argLine property, the value is set up by Jacoco during unit tests execution -->
