@@ -49,10 +49,10 @@
         <gbfsGithubUrl>https://github.com/entur/gbfs-json-schema/archive/refs/tags/v3.0-RC3.zip</gbfsGithubUrl>
         <schemaVersion>3.0-RC3</schemaVersion>
 
-        <everit-json-schema.version>1.14.2</everit-json-schema.version>
+        <everit-json-schema.version>1.14.3</everit-json-schema.version>
         <slf4j.version>1.7.36</slf4j.version>
 
-        <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <maven-exec-plugin.version>1.6.0</maven-exec-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
@@ -70,7 +70,7 @@
         <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
         <wagon-ssh-external.version>2.12</wagon-ssh-external.version>
         <plexus-compiler-javac.version>2.13.0</plexus-compiler-javac.version>
-        <versions-maven-plugin.version>2.16.0</versions-maven-plugin.version>
+        <versions-maven-plugin.version>2.16.1</versions-maven-plugin.version>
         <dependency-check-maven.version>5.3.2</dependency-check-maven.version>
         <maven-scm-provider-gitexe.version>1.13.0</maven-scm-provider-gitexe.version>
         <maven-scm-api.version>1.13.0</maven-scm-api.version>
