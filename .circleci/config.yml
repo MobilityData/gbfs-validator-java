@@ -9,7 +9,7 @@ aliases:
   - &sonar-scan
     name: Sonar scan
     command: |
-      mvn -Psonar -s .circleci/settings.xml \
+      ./mvnw -Psonar -s .circleci/settings.xml \
         sonar:sonar \
         -Dsonar.projectKey=entur_${CIRCLE_PROJECT_REPONAME} \
         -Dsonar.organization=${SONAR_ORG} \
@@ -23,7 +23,7 @@ aliases:
       git config --global user.email "circleci@entur.no"
       git config --global user.name "circleci"
       git checkout master
-      mvn gitflow:release-start gitflow:release-finish -DskipTests=true -Prelease -DpostReleaseGoals=deploy -DargLine='-Prelease -DskipTests -s .circleci/settings.xml' -B -s .circleci/settings.xml
+      ./mvnw gitflow:release-start gitflow:release-finish -DskipTests=true -Prelease -DpostReleaseGoals=deploy -DargLine='-Prelease -DskipTests -s .circleci/settings.xml' -B -s .circleci/settings.xml
   - &import_gpg_key
     name: Configure GPG private key for signing project artifacts in OSS Sonatype
     command: |
@@ -51,13 +51,13 @@ jobs:
       - run: *jfrog-login
       - run:
           name: Refresh cache
-          command: mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.0:go-offline -s .circleci/settings.xml
+          command: ./mvnw org.apache.maven.plugins:maven-dependency-plugin:3.1.0:go-offline -s .circleci/settings.xml
       - save_cache:
           paths:
             - ~/.m2
           key: dep-cache-{{ checksum "pom.xml" }}
       # Cannot use -o because of snapshot dependencies.
-      - run: mvn package -s .circleci/settings.xml
+      - run: ./mvnw package -s .circleci/settings.xml
       - run: *sonar-scan
       - run:
           name: Save test results
@@ -94,8 +94,8 @@ jobs:
       - run: *jfrog-login
       - run:
           name: Refresh cache
-          command: mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.0:go-offline -s .circleci/settings.xml
-      - run: mvn install -s .circleci/settings.xml && mvn package -s .circleci/settings.xml -Dmaven.test.skip=true
+          command: ./mvnw org.apache.maven.plugins:maven-dependency-plugin:3.1.0:go-offline -s .circleci/settings.xml
+      - run: ./mvnw install -s .circleci/settings.xml && mvn package -s .circleci/settings.xml -Dmaven.test.skip=true
       - persist_to_workspace:
           root: ~/project
           paths:
