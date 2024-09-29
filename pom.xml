@@ -80,7 +80,7 @@
 
         <!-- Unit test frameworks versions -->
         <assertj.core.version>3.26.3</assertj.core.version>
-        <junit.version>5.11.0</junit.version>
+        <junit.version>5.11.1</junit.version>
     </properties>
 
     <dependencies>
