@@ -1,0 +1,403 @@
+openapi: 3.0.0
+info:
+  title: GBFS Validator API
+  version: "0.1"
+paths:
+  /validate_option1:
+    post:
+      summary: Validate GBFS feed
+      requestBody:
+        $ref: '#/components/requestBodies/ValidateRequestBody'
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationResultOption1"
+
+  /validate_option2:
+    post:
+      summary: Validate GBFS feed
+      requestBody:
+        $ref: '#/components/requestBodies/ValidateRequestBody'
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationResultOption2"
+
+  /validate_option3:
+    post:
+      summary: Validate GBFS feed
+      requestBody:
+        $ref: '#/components/requestBodies/ValidateRequestBody'
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationResultOption3"
+
+components:
+  requestBodies:
+    ValidateRequestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              feedUrl:
+                type: string
+                example: "https://example.com/gbfs.json"
+              auth:
+                oneOf:
+                  - $ref: '#/components/schemas/BasicAuth'
+                  - $ref: '#/components/schemas/BearerTokenAuth'
+                  - $ref: '#/components/schemas/OAuthClientCredentialsGrantAuth'
+                discriminator:
+                  propertyName: authType
+                  mapping:
+                    basicAuth: '#/components/schemas/BasicAuth'
+                    bearerToken: '#/components/schemas/BearerTokenAuth'
+                    oauthClientCredentialsGrant: '#/components/schemas/OAuthClientCredentialsGrantAuth'
+
+  schemas:
+    BasicAuth:
+      type: object
+      properties:
+        authType:
+          type: string
+          example: "BasicAuth"
+        username:
+          type: string
+          example: username
+        password:
+          type: string
+          example: password
+
+    BearerTokenAuth:
+      type: object
+      properties:
+        authType:
+          type: string
+          example: bearerToken
+        token:
+          type: string
+          example: "THE_TOKEN"
+
+    OAuthClientCredentialsGrantAuth:
+      type: object
+      properties:
+        authType:
+          type: string
+          example: "OAuthClientCredentialsGrantAuth"
+        clientId:
+          type: string
+          example: "CLIENT_ID"
+        clientSecret:
+          type: string
+          example: "THE_SECRET"
+        tokenUrl:
+          type: string
+          example: "https://token.example.com"
+
+    # Q: Is this general enough for all json-schema errors?
+    FileError:
+      type: object
+      properties:
+        keyword:
+          type: string
+          description: |
+            Possible known keywords: type, enum, format, required, minimum, maximum, pattern.
+        instancePath:
+          type: string
+          description: |
+            The JSON Pointer path to the part of the instance that failed validation.
+        schemaPath:
+          type: string
+          description: |
+            The JSON Pointer path to the part of the schema that triggered the error.
+        message:
+          type: string
+          description: |
+            Human-readable message describing the error.
+        params:
+          type: object
+          additionalProperties: true
+          description: |
+            Dynamic properties specific to the validation keyword (e.g., allowedValues for 'enum').
+      required:
+        - keyword
+        - instancePath
+        - schemaPath
+        - message
+
+    GbfsFile:
+      type: object
+      properties:
+        name:
+          type: string
+          description: |
+            Key identifying the type of feed this is. The key MUST be the base file name defined in the spec for the corresponding feed type ( system_information for system_information.json file, station_information for station_information.json file).
+          example: gbfs
+        url:
+          type: string
+          format: url
+          example: https://www.example.com/gbfs/v3/gbfs.json
+          # The structure of the schema depends on the GBFS spec version.
+          # We can reference all the version from the original json-schema on each file
+          # Q: Do we need a version per file?
+        version:
+          type: string
+          example: "3.0"
+          # Q: are required and recommended needed? These fields are per spec version.
+        required:
+          type: boolean
+          example: true
+        recommended:
+          type: boolean
+          example: true
+        exists:
+          type: boolean
+          example: true
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileError"
+        schema:
+          type: object
+
+    # Option 1
+
+    FileOption1:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          example: "https://www.example.com/gbfs/v2/gbfs_versions"
+        lang:
+          type: string
+          example: "en"
+        exists:
+          type: boolean
+          example: true
+        fileContent:
+          type: object
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileError"
+
+    FileLangOption1:
+      properties:
+        name:
+          type: string
+          example: "gbfs_versions"
+        version:
+          type: string
+          example: "2.3"
+        required:
+          type: boolean
+          example: true
+        recommended:
+          type: boolean
+          example: true
+        exists:
+          type: boolean
+          example: true
+        schema:
+          type: object
+        files:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileOption1"
+
+    ValidationResultOption1:
+      type: object
+      properties:
+        summary:
+          type: object
+          properties:
+            validatorVersion:
+              type: string
+              example: "v1.2"
+            # Current we have versionDetected and versionValidated, are these fields needed or a single one?
+            gbfsVersion:
+              type: string
+              example: "3.0"
+            files:
+              type: array
+              items:
+                oneOf:
+                  - $ref: "#/components/schemas/GbfsFile"
+                  - $ref: "#/components/schemas/FileLangOption1"
+
+
+    # Option 2
+    FileLangOption2:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "system_information"
+        url:
+          type: string
+          format: uri
+          example: "https://www.example.com/gbfs/v3/gbfs.json"
+        version:
+          type: string
+          example: "3.0"
+        required:
+          type: boolean
+          example: true
+        recommended:
+          type: boolean
+          example: true
+        exists:
+          type: boolean
+          example: true
+        schema: #TODO: Do we need this?
+          type: object
+        fileContent:
+          type: object
+        lang:
+          type: string
+          example: "en"
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileError"
+
+    FileOption2:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "gbfs_versions"
+        url:
+          type: string
+          format: uri
+          example: "https://www.example.com/gbfs/v2/gbfs_versions"
+        version:
+          type: string
+          example: "3.0"
+        required:
+          type: boolean
+          example: true
+        recommended:
+          type: boolean
+          example: true
+        exists:
+          type: boolean
+          example: true
+        schema: #TODO: Should we add a single schema or multiple per file?
+          type: object
+        languageFiles:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileLangOption2"
+
+    ValidationResultOption2:
+      type: object
+      properties:
+        summary:
+          type: object
+          properties:
+            validatorVersion:
+              type: string
+              example: "v1.2"
+            # Current we have versionDetected and versionValidated, are these fields needed or a single one?
+            gbfsVersion:
+              type: string
+              example: "3.0"
+            files:
+              type: array
+              items:
+                oneOf:
+                  - $ref: "#/components/schemas/GbfsFile"
+                  - $ref: "#/components/schemas/FileOption2"
+
+    # Option 3
+
+    FileOption3:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          example: "https://www.example.com/gbfs/v2/gbfs_versions"
+        lang:
+          type: string
+          example: "en"
+        exists:
+          type: boolean
+          example: true
+        fileContent:
+          type: object
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileError"
+
+    FileLangOption3:
+      properties:
+        name:
+          type: string
+          example: "gbfs_versions"
+        version:
+          type: string
+          example: "2.3"
+        required:
+          type: boolean
+          example: true
+        recommended:
+          type: boolean
+          example: true
+        exists:
+          type: boolean
+          example: true
+        schema:
+          type: object
+        files:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/FileOption3"
+          example:
+            en:
+              url: "https://www.example.com/gbfs/v2/gbfs_versions"
+              lang: "en"
+              exists: true
+              fileContent: {}
+              errors:
+                - keyword: "string"
+                  instancePath: "string"
+                  schemaPath: "string"
+                  message: "string"
+                  params:
+                    additionalProp1: {}
+
+    ValidationResultOption3:
+      type: object
+      properties:
+        summary:
+          type: object
+          properties:
+            validatorVersion:
+              type: string
+              example: "v1.2"
+            # Current we have versionDetected and versionValidated, are these fields needed or a single one?
+            gbfsVersion:
+              type: string
+              example: "3.0"
+            files:
+              type: array
+              items:
+                oneOf:
+                  - $ref: "#/components/schemas/GbfsFile"
+                  - $ref: "#/components/schemas/FileLangOption3"
