@@ -48,6 +48,7 @@
           
     
     <module>cli</module>
+    <module>api</module>
       
   </modules>
         
