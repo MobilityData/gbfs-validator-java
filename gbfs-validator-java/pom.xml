@@ -53,7 +53,7 @@
         <gbfsGithubUrl>https://github.com/entur/gbfs-json-schema/archive/refs/tags/v3.0.zip</gbfsGithubUrl>
         <schemaVersion>3.0</schemaVersion>
 
-        <everit-json-schema.version>1.14.5</everit-json-schema.version>
+        <everit-json-schema.version>1.14.6</everit-json-schema.version>
         <slf4j.version>1.7.36</slf4j.version>
 
         <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
