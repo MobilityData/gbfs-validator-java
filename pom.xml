@@ -41,7 +41,7 @@
         <tag>HEAD</tag>
     </scm>
     <properties>
-        <jreleaser-maven-plugin.version>1.19.0</jreleaser-maven-plugin.version>
+        <jreleaser-maven-plugin.version>1.20.0</jreleaser-maven-plugin.version>
     </properties>
     <build>
         <plugins>
