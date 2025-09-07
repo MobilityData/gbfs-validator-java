@@ -67,7 +67,7 @@
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <wagon-ssh-external.version>2.12</wagon-ssh-external.version>
         <plexus-compiler-javac.version>2.15.0</plexus-compiler-javac.version>
-        <versions-maven-plugin.version>2.18.0</versions-maven-plugin.version>
+        <versions-maven-plugin.version>2.19.0</versions-maven-plugin.version>
         <dependency-check-maven.version>5.3.2</dependency-check-maven.version>
         <maven-scm-provider-gitexe.version>1.13.0</maven-scm-provider-gitexe.version>
         <maven-scm-api.version>1.13.0</maven-scm-api.version>
