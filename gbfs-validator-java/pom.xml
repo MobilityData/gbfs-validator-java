@@ -76,7 +76,7 @@
         <argLine />
 
         <!-- Unit test frameworks versions -->
-        <assertj.core.version>3.27.5</assertj.core.version>
+        <assertj.core.version>3.27.6</assertj.core.version>
         <junit.version>5.13.4</junit.version>
         <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
     </properties>
