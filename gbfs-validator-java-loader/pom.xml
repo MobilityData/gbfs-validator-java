@@ -21,7 +21,7 @@
         <junit.version>6.0.0</junit.version>
         <wiremock.version>3.0.1</wiremock.version>
         <mockito.version>5.20.0</mockito.version>
-        <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
         <!-- empty argLine property, the value is set up by Jacoco during unit tests execution -->
         <argLine></argLine>
     </properties>

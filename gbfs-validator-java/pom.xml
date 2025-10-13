@@ -51,7 +51,7 @@
         <everit-json-schema.version>1.14.6</everit-json-schema.version>
         <slf4j.version>2.0.17</slf4j.version>
 
-        <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
         <maven-exec-plugin.version>3.6.1</maven-exec-plugin.version>
         <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
         <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
@@ -64,7 +64,7 @@
         <maven-site-plugin.version>3.21.0</maven-site-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <plexus-compiler-javac.version>2.15.0</plexus-compiler-javac.version>
-        <dependency-check-maven.version>12.1.6</dependency-check-maven.version>
+        <dependency-check-maven.version>12.1.7</dependency-check-maven.version>
 
         <!-- empty argLine property, the value is set up by Jacoco during unit tests execution -->
         <argLine />

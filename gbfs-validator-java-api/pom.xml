@@ -41,7 +41,7 @@
         <mockito.version>5.11.0</mockito.version>
         <junit-platform.version>6.0.0</junit-platform.version>
         <openapi-generator-maven-plugin>7.16.0</openapi-generator-maven-plugin>
-        <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
         <!-- empty argLine property, the value is set up by Jacoco during unit tests execution -->
         <argLine></argLine>
     </properties>
@@ -200,7 +200,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-util</artifactId>
-            <version>12.1.1</version>
+            <version>12.1.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
