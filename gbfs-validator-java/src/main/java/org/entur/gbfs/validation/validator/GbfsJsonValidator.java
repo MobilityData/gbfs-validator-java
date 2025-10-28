@@ -158,13 +158,10 @@ public class GbfsJsonValidator implements GbfsValidator {
   ) {
     ParsedFeedContainer gbfsContainer = parsedFeeds.get("gbfs");
     if (gbfsContainer != null && gbfsContainer.jsonObject() != null) {
-      try {
-        String versionStr = gbfsContainer.jsonObject().getString("version");
-        if (versionStr != null) {
-          return VersionFactory.createVersion(versionStr);
-        }
-      } catch (JSONException e) {
-        LOG.warn("Could not extract version from gbfs.json, using default.", e);
+      // Use optString to handle v1.0 feeds that don't have a version field
+      String versionStr = gbfsContainer.jsonObject().optString("version", null);
+      if (versionStr != null && !versionStr.isEmpty()) {
+        return VersionFactory.createVersion(versionStr);
       }
     }
     return VersionFactory.createVersion(GbfsJsonValidator.DEFAULT_VERSION);
