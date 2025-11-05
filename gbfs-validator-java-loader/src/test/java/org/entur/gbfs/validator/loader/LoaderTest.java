@@ -349,7 +349,7 @@ public class LoaderTest {
 
     LoadedFile discoveryFile = files
       .stream()
-      .filter(f -> f.fileName().equals("gbfs-v3.json"))
+      .filter(f -> f.fileName().equals("gbfs-v3"))
       .findFirst()
       .orElse(null);
     LoadedFile systemInfoFile = files

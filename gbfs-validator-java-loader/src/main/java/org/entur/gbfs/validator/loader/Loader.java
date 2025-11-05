@@ -167,12 +167,17 @@ public class Loader {
     JSONObject discoveryFileJson = new JSONObject(
       new JSONTokener(new ByteArrayInputStream(discoveryFileBytes))
     );
-    String version = discoveryFileJson.getString("version");
+    // Default to version 1.0 if no version field is present (as in GBFS v1.0)
+    String version = discoveryFileJson.optString("version", "1.0");
 
     List<LoadedFile> loadedFiles = new ArrayList<>();
+    // Normalize discovery file name to "gbfs" (without extension) for validator compatibility
+    String discoveryFileName = discoveryLoadedFile
+      .fileName()
+      .replaceFirst("\\.json$", "");
     loadedFiles.add(
       new LoadedFile(
-        discoveryLoadedFile.fileName(),
+        discoveryFileName,
         discoveryLoadedFile.url(),
         new ByteArrayInputStream(discoveryFileBytes),
         discoveryLoadedFile.language(),
@@ -200,35 +205,40 @@ public class Loader {
   ) {
     List<LoadedFile> loadedFeedFiles = new ArrayList<>();
 
-    List<CompletableFuture<LoadedFile>> futures = discoveryFileJson
-      .getJSONObject("data")
-      .getJSONArray("feeds")
-      .toList()
-      .stream()
-      .map(feed -> {
-        @SuppressWarnings("unchecked")
-        Map<String, Object> feedMap = (Map<String, Object>) feed;
-        String url = (String) feedMap.get("url");
-        String name = (String) feedMap.get("name");
+    try {
+      List<CompletableFuture<LoadedFile>> futures = discoveryFileJson
+        .getJSONObject("data")
+        .getJSONArray("feeds")
+        .toList()
+        .stream()
+        .map(feed -> {
+          @SuppressWarnings("unchecked")
+          Map<String, Object> feedMap = (Map<String, Object>) feed;
+          String url = (String) feedMap.get("url");
+          String name = (String) feedMap.get("name");
 
-        return CompletableFuture.supplyAsync(
-          () -> {
-            LoadedFile loadedFile = loadFile(URI.create(url), auth);
-            return new LoadedFile(
-              name,
-              url,
-              loadedFile.fileContents(),
-              loadedFile.language(),
-              loadedFile.loaderErrors()
-            );
-          },
-          executorService
-        );
-      })
-      .toList();
-    loadedFeedFiles.addAll(
-      futures.stream().map(CompletableFuture::join).toList()
-    );
+          return CompletableFuture.supplyAsync(
+            () -> {
+              LoadedFile loadedFile = loadFile(URI.create(url), auth);
+              return new LoadedFile(
+                name,
+                url,
+                loadedFile.fileContents(),
+                loadedFile.language(),
+                loadedFile.loaderErrors()
+              );
+            },
+            executorService
+          );
+        })
+        .toList();
+      loadedFeedFiles.addAll(
+        futures.stream().map(CompletableFuture::join).toList()
+      );
+    } catch (Exception e) {
+      // If we can't parse the discovery file structure, return empty list
+      // so the discovery file itself can be validated and report proper errors
+    }
 
     return loadedFeedFiles;
   }
@@ -241,42 +251,47 @@ public class Loader {
     List<LoadedFile> loadedFeedFiles = new ArrayList<>();
     List<CompletableFuture<LoadedFile>> futures = new ArrayList<>();
 
-    discoveryFileJson
-      .getJSONObject("data")
-      .keys()
-      .forEachRemaining(languageKey -> {
-        discoveryFileJson
-          .getJSONObject("data")
-          .getJSONObject(languageKey)
-          .getJSONArray("feeds")
-          .toList()
-          .forEach(feed -> {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> feedMap = (Map<String, Object>) feed;
-            String url = (String) feedMap.get("url");
-            String name = (String) feedMap.get("name");
+    try {
+      discoveryFileJson
+        .getJSONObject("data")
+        .keys()
+        .forEachRemaining(languageKey -> {
+          discoveryFileJson
+            .getJSONObject("data")
+            .getJSONObject(languageKey)
+            .getJSONArray("feeds")
+            .toList()
+            .forEach(feed -> {
+              @SuppressWarnings("unchecked")
+              Map<String, Object> feedMap = (Map<String, Object>) feed;
+              String url = (String) feedMap.get("url");
+              String name = (String) feedMap.get("name");
 
-            futures.add(
-              CompletableFuture.supplyAsync(
-                () -> {
-                  LoadedFile loadedFile = loadFile(URI.create(url), auth);
-                  return new LoadedFile(
-                    name,
-                    url,
-                    loadedFile.fileContents(),
-                    languageKey,
-                    loadedFile.loaderErrors()
-                  );
-                },
-                executorService
-              )
-            );
-          });
-      });
+              futures.add(
+                CompletableFuture.supplyAsync(
+                  () -> {
+                    LoadedFile loadedFile = loadFile(URI.create(url), auth);
+                    return new LoadedFile(
+                      name,
+                      url,
+                      loadedFile.fileContents(),
+                      languageKey,
+                      loadedFile.loaderErrors()
+                    );
+                  },
+                  executorService
+                )
+              );
+            });
+        });
 
-    loadedFeedFiles.addAll(
-      futures.stream().map(CompletableFuture::join).toList()
-    );
+      loadedFeedFiles.addAll(
+        futures.stream().map(CompletableFuture::join).toList()
+      );
+    } catch (Exception e) {
+      // If we can't parse the discovery file structure, return empty list
+      // so the discovery file itself can be validated and report proper errors
+    }
 
     return loadedFeedFiles;
   }
