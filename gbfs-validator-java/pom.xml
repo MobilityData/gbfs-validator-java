@@ -38,9 +38,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:ssh://git@github.com/entur/gbfs-validator-java.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/entur/gbfs-validator-java.git</developerConnection>
-        <url>https://github.com/entur/gbfs-validator-java/tree/master</url>
+        <connection>scm:git:ssh://git@github.com/MobilityData/gbfs-validator-java.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/MobilityData/gbfs-validator-java.git</developerConnection>
+        <url>https://github.com/MobilityData/gbfs-validator-java.git</url>
         <tag>HEAD</tag>
     </scm>
     <properties>
