@@ -31,10 +31,16 @@
 
     <developers>
         <developer>
-            <name>Tom Erik Støwer</name>
+            <name>MobilityData</name>
             <email>developers@mobilitydata.org</email>
             <organization>MobilityData</organization>
             <organizationUrl>https://mobilitydata.org/</organizationUrl>
+        </developer>
+        <developer>
+            <name>Tom Erik Støwer</name>
+            <email>tom.erik.stower@entur.org</email>
+            <organization>Entur</organization>
+            <organizationUrl>http://www.entur.org</organizationUrl>
         </developer>
     </developers>
 
