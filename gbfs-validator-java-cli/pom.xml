@@ -6,7 +6,8 @@
     <parent>
         <groupId>org.mobilitydata</groupId>
         <artifactId>gbfs-validator-java-parent</artifactId>
-        <version>2.0.67</version>
+        <!-- Version is derived at build time from the latest git tag via maven-git-versioning-extension (.mvn/). -->
+        <version>0.0.0-placeholder</version>
     </parent>
 
     <artifactId>gbfs-validator-java-cli</artifactId>
@@ -25,6 +26,8 @@
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
         <!-- empty argLine property, the value is set up by Jacoco during unit tests execution -->
         <argLine></argLine>
+        <!-- The CLI fat jar is published as a GitHub release artifact, not to Maven Central -->
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <dependencies>

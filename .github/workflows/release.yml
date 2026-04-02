@@ -1,0 +1,108 @@
+name: Release
+
+# Triggered by GitHub release events:
+#   - Creating a pre-release with tag vX.Y.Z → builds and stages artifacts to Maven Central
+#     (USER_MANAGED, pending). Review them at https://central.sonatype.com, then convert
+#     the pre-release to a full release when satisfied.
+#   - Publishing a full release → rebuilds and publishes artifacts to Maven Central immediately.
+#
+# The project version is derived automatically from the git tag via maven-git-versioning-extension.
+# No pom.xml version commits are needed.
+on:
+  release:
+    types: [prereleased, released]
+
+env:
+  java_version: '17'
+  java_distribution: 'zulu'
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    env:
+      HAS_1PASSWORD: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN != '' }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          # Check out the exact tagged commit so the version is correctly resolved from the tag.
+          ref: ${{ github.event.release.tag_name }}
+      - name: Extract version
+        id: version
+        uses: ./.github/actions/extract-version
+      - name: Set up JDK ${{ env.java_version }}-${{ env.java_distribution }}
+        uses: actions/setup-java@v5
+        with:
+          java-version: ${{ env.java_version }}
+          distribution: ${{ env.java_distribution }}
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+            ${{ runner.os }}-maven-
+            ${{ runner.os }}-
+      - name: Load secrets from 1Password
+        if: env.HAS_1PASSWORD == 'true'
+        uses: MobilityData/gtfs-validator/.github/actions/extract-1password-secret@master
+        with:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          VARIABLES_TO_EXTRACT: 'MAVEN_GPG_PASSPHRASE, MAVEN_GPG_PRIVATE_KEY, MAVEN_CENTRAL_PORTAL_TOKEN_USERNAME, MAVEN_CENTRAL_PORTAL_TOKEN_PASSWORD'
+          ONE_PASSWORD_SECRET_REFERENCES: ${{ vars.ONE_PASSWORD_SECRET_REFERENCES }}
+      - name: Load secrets from GitHub secrets (fallback for forks without 1Password)
+        if: env.HAS_1PASSWORD != 'true'
+        env:
+          GPG_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          GPG_PASS: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+          MVN_USER: ${{ secrets.MAVEN_CENTRAL_PORTAL_TOKEN_USERNAME }}
+          MVN_PASS: ${{ secrets.MAVEN_CENTRAL_PORTAL_TOKEN_PASSWORD }}
+        run: |
+          {
+            echo "MAVEN_GPG_PASSPHRASE=$GPG_PASS"
+            echo "MAVEN_GPG_PRIVATE_KEY<<GPG_EOF"
+            echo "$GPG_KEY"
+            echo "GPG_EOF"
+            echo "MAVEN_CENTRAL_PORTAL_TOKEN_USERNAME=$MVN_USER"
+            echo "MAVEN_CENTRAL_PORTAL_TOKEN_PASSWORD=$MVN_PASS"
+          } >> "$GITHUB_ENV"
+      - name: Setup GPG and JReleaser credentials
+        run: |
+          echo "$MAVEN_GPG_PRIVATE_KEY" | gpg --batch --import
+          GPG_KEY_ID=$(gpg --list-secret-keys --keyid-format LONG | grep '^sec' | awk '{print $2}' | cut -d'/' -f2 | head -1)
+          {
+            echo "JRELEASER_GPG_PUBLIC_KEY<<GPG_EOF"
+            gpg --armor --export "$GPG_KEY_ID"
+            echo "GPG_EOF"
+            echo "JRELEASER_GPG_SECRET_KEY<<GPG_EOF"
+            gpg --armor --export-secret-keys "$GPG_KEY_ID"
+            echo "GPG_EOF"
+            echo "JRELEASER_GPG_PASSPHRASE=$MAVEN_GPG_PASSPHRASE"
+            echo "JRELEASER_MAVENCENTRAL_SONATYPE_USERNAME=$MAVEN_CENTRAL_PORTAL_TOKEN_USERNAME"
+            echo "JRELEASER_MAVENCENTRAL_SONATYPE_PASSWORD=$MAVEN_CENTRAL_PORTAL_TOKEN_PASSWORD"
+          } >> "$GITHUB_ENV"
+      - name: Stage artifacts
+        run: mvn deploy -Ppublication -Dprettier.skip=true -Drevision=${{ steps.version.outputs.version }}
+      - name: Deploy to Maven Central
+        # prereleased: USER_MANAGED — artifacts sit pending in the portal for review.
+        # released:    AUTOMATIC   — artifacts are published immediately after validation.
+        # jreleaser:deploy only handles Maven Central; GitHub release management is done by the GitHub UI.
+        env:
+          JRELEASER_DEPLOY_MAVEN_MAVENCENTRAL_SONATYPE_PUBLISHING_TYPE: ${{ github.event.action == 'prereleased' && 'USER_MANAGED' || 'AUTOMATIC' }}
+        run: mvn jreleaser:deploy -Djreleaser.output.directory=out -Drevision=${{ steps.version.outputs.version }}
+      - name: Upload CLI fat jar to GitHub release
+        run: |
+          gh release upload "${{ github.event.release.tag_name }}" \
+            gbfs-validator-java-cli/target/gbfs-validator-cli.jar \
+            --clobber
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload JReleaser output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jreleaser-release-logs
+          path: out/
