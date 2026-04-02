@@ -22,7 +22,7 @@ jobs:
     permissions:
       contents: write
     env:
-      HAS_1PASSWORD: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN != '' }}
+      HAS_1PASSWORD: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN != '' && vars.ONE_PASSWORD_SECRET_REFERENCES != '' }}
     steps:
       - uses: actions/checkout@v5
         with:
