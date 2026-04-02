@@ -24,9 +24,6 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - name: Extract version
-        id: version
-        uses: ./.github/actions/extract-version
       - name: Set up JDK ${{ env.java_version }}-${{ env.java_distribution }}
         uses: actions/setup-java@v5
         with:
@@ -80,9 +77,9 @@ jobs:
             echo "JRELEASER_NEXUS2_MAVEN_CENTRAL_PASSWORD=$MAVEN_CENTRAL_PORTAL_TOKEN_PASSWORD"
           } >> "$GITHUB_ENV"
       - name: Stage artifacts
-        run: mvn deploy -Ppublication -Dprettier.skip=true -Drevision=${{ steps.version.outputs.version }}
+        run: mvn deploy -Ppublication -Dprettier.skip=true
       - name: Publish snapshot to Maven Central
-        run: mvn jreleaser:deploy -Djreleaser.output.directory=out -Drevision=${{ steps.version.outputs.version }}
+        run: mvn jreleaser:deploy -Djreleaser.output.directory=out
       - name: Upload JReleaser output
         if: always()
         uses: actions/upload-artifact@v4

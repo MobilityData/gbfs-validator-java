@@ -29,9 +29,6 @@ jobs:
           fetch-depth: 0
           # Check out the exact tagged commit so the version is correctly resolved from the tag.
           ref: ${{ github.event.release.tag_name }}
-      - name: Extract version
-        id: version
-        uses: ./.github/actions/extract-version
       - name: Set up JDK ${{ env.java_version }}-${{ env.java_distribution }}
         uses: actions/setup-java@v5
         with:
@@ -85,14 +82,14 @@ jobs:
             echo "JRELEASER_MAVENCENTRAL_SONATYPE_PASSWORD=$MAVEN_CENTRAL_PORTAL_TOKEN_PASSWORD"
           } >> "$GITHUB_ENV"
       - name: Stage artifacts
-        run: mvn deploy -Ppublication -Dprettier.skip=true -Drevision=${{ steps.version.outputs.version }}
+        run: mvn deploy -Ppublication -Dprettier.skip=true
       - name: Deploy to Maven Central
         # prereleased: USER_MANAGED — artifacts sit pending in the portal for review.
         # released:    AUTOMATIC   — artifacts are published immediately after validation.
         # jreleaser:deploy only handles Maven Central; GitHub release management is done by the GitHub UI.
         env:
           JRELEASER_DEPLOY_MAVEN_MAVENCENTRAL_SONATYPE_PUBLISHING_TYPE: ${{ github.event.action == 'prereleased' && 'USER_MANAGED' || 'AUTOMATIC' }}
-        run: mvn jreleaser:deploy -Djreleaser.output.directory=out -Drevision=${{ steps.version.outputs.version }}
+        run: mvn jreleaser:deploy -Djreleaser.output.directory=out
       - name: Upload CLI fat jar to GitHub release
         run: |
           gh release upload "${{ github.event.release.tag_name }}" \
