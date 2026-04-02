@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - master
+      - 187-create-mobilitydata-maven-packages  # TEMPORARY: remove after testing
   workflow_dispatch:  # Manual trigger
 
 env:
