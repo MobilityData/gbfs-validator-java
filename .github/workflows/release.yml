@@ -69,7 +69,7 @@ jobs:
             echo "MAVEN_CENTRAL_PORTAL_TOKEN_PASSWORD=$MVN_PASS"
           } >> "$GITHUB_ENV"
       - name: Stage artifacts
-        run: mvn deploy -Ppublication -Dprettier.skip=true -ntp
+        run: mvn deploy -Ppublication -Dprettier.skip=true -ntp -e
       - name: Deploy to Maven Central
         # prereleased: USER_MANAGED — artifacts sit pending in the portal for review.
         # released:    AUTOMATIC   — artifacts are published immediately after validation.
