@@ -3,6 +3,7 @@ on:
   pull_request:
     branches:
       - master
+  workflow_dispatch:
 jobs:
   maven-package:
     runs-on: ubuntu-24.04

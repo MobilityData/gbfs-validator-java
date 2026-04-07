@@ -52,7 +52,7 @@
         <tag>HEAD</tag>
     </scm>
     <properties>
-        <jreleaser-maven-plugin.version>1.20.0</jreleaser-maven-plugin.version>
+        <jreleaser-maven-plugin.version>1.23.0</jreleaser-maven-plugin.version>
         <sonar-maven-plugin.version>5.2.0.4988</sonar-maven-plugin.version>
         <prettier-java.version>2.1.0</prettier-java.version>
         <prettier-maven-plugin.version>0.22</prettier-maven-plugin.version>
@@ -69,6 +69,11 @@
                         <signing>
                             <active>ALWAYS</active>
                             <armored>true</armored>
+                            <!-- verify=false: skips local signature verification after signing.
+                                 Maven Central performs its own verification on upload, so this
+                                 is redundant locally and requires BouncyCastle to re-parse the
+                                 public key, which fails in some JReleaser versions. -->
+                            <verify>false</verify>
                         </signing>
                         <deploy>
                             <maven>
@@ -77,6 +82,8 @@
                                         <active>RELEASE</active>
                                         <url>https://central.sonatype.com/api/v1/publisher</url>
                                         <stagingRepositories>target/staging-deploy</stagingRepositories>
+                                        <username>${env.MAVEN_CENTRAL_PORTAL_TOKEN_USERNAME}</username>
+                                        <password>${env.MAVEN_CENTRAL_PORTAL_TOKEN_PASSWORD}</password>
                                     </sonatype>
                                 </mavenCentral>
                                 <nexus2>
@@ -89,6 +96,8 @@
                                         <closeRepository>true</closeRepository>
                                         <releaseRepository>true</releaseRepository>
                                         <stagingRepositories>target/staging-deploy</stagingRepositories>
+                                        <username>${env.MAVEN_CENTRAL_PORTAL_TOKEN_USERNAME}</username>
+                                        <password>${env.MAVEN_CENTRAL_PORTAL_TOKEN_PASSWORD}</password>
                                     </maven-central>
                                 </nexus2>
                             </maven>

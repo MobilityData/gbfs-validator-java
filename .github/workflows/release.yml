@@ -66,21 +66,6 @@ jobs:
             echo "MAVEN_CENTRAL_PORTAL_TOKEN_USERNAME=$MVN_USER"
             echo "MAVEN_CENTRAL_PORTAL_TOKEN_PASSWORD=$MVN_PASS"
           } >> "$GITHUB_ENV"
-      - name: Setup GPG and JReleaser credentials
-        run: |
-          echo "$MAVEN_GPG_PRIVATE_KEY" | gpg --batch --import
-          GPG_KEY_ID=$(gpg --list-secret-keys --keyid-format LONG | grep '^sec' | awk '{print $2}' | cut -d'/' -f2 | head -1)
-          {
-            echo "JRELEASER_GPG_PUBLIC_KEY<<GPG_EOF"
-            gpg --armor --export "$GPG_KEY_ID"
-            echo "GPG_EOF"
-            echo "JRELEASER_GPG_SECRET_KEY<<GPG_EOF"
-            gpg --armor --export-secret-keys "$GPG_KEY_ID"
-            echo "GPG_EOF"
-            echo "JRELEASER_GPG_PASSPHRASE=$MAVEN_GPG_PASSPHRASE"
-            echo "JRELEASER_MAVENCENTRAL_SONATYPE_USERNAME=$MAVEN_CENTRAL_PORTAL_TOKEN_USERNAME"
-            echo "JRELEASER_MAVENCENTRAL_SONATYPE_PASSWORD=$MAVEN_CENTRAL_PORTAL_TOKEN_PASSWORD"
-          } >> "$GITHUB_ENV"
       - name: Stage artifacts
         run: mvn deploy -Ppublication -Dprettier.skip=true
       - name: Deploy to Maven Central
@@ -89,6 +74,8 @@ jobs:
         # jreleaser:deploy only handles Maven Central; GitHub release management is done by the GitHub UI.
         env:
           JRELEASER_DEPLOY_MAVEN_MAVENCENTRAL_SONATYPE_PUBLISHING_TYPE: ${{ github.event.action == 'prereleased' && 'USER_MANAGED' || 'AUTOMATIC' }}
+          JRELEASER_GPG_PASSPHRASE: ${{ env.MAVEN_GPG_PASSPHRASE }}
+          JRELEASER_GPG_SECRET_KEY: ${{ env.MAVEN_GPG_PRIVATE_KEY }}
         run: mvn jreleaser:deploy -Djreleaser.output.directory=out
       - name: Upload CLI fat jar to GitHub release
         run: |
