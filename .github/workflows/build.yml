@@ -4,6 +4,10 @@ on:
     branches:
       - master
   workflow_dispatch:
+
+env:
+  MAVEN_OPTS: '-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn'
+
 jobs:
   maven-package:
     runs-on: ubuntu-24.04

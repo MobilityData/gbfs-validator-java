@@ -118,7 +118,8 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.6.1</version>
+                <!-- Use older version: 3.6.0 and 3.6.1 have a bug: "Collections sizes are not equals" -->
+                <version>3.5.3</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
