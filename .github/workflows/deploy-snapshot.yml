@@ -14,7 +14,6 @@ on:
 env:
   java_version: '17'
   java_distribution: 'zulu'
-  MAVEN_OPTS: '-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn'
 
 jobs:
   publish-snapshot:
@@ -64,12 +63,12 @@ jobs:
             echo "MAVEN_CENTRAL_PORTAL_TOKEN_PASSWORD=$MVN_PASS"
           } >> "$GITHUB_ENV"
       - name: Stage artifacts
-        run: mvn deploy -Ppublication -Dprettier.skip=true
+        run: mvn deploy -Ppublication -Dprettier.skip=true -ntp
       - name: Publish snapshot to Maven Central
         env:
           JRELEASER_GPG_PASSPHRASE: ${{ env.MAVEN_GPG_PASSPHRASE }}
           JRELEASER_GPG_SECRET_KEY: ${{ env.MAVEN_GPG_PRIVATE_KEY }}
-        run: mvn jreleaser:deploy -Djreleaser.output.directory=out
+        run: mvn jreleaser:deploy -Djreleaser.output.directory=out -ntp
       - name: Upload JReleaser output
         if: always()
         uses: actions/upload-artifact@v4
