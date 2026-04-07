@@ -134,15 +134,16 @@
                             <finalName>gbfs-validator-cli</finalName>
                             <filters>
                                 <filter>
-                <!-- Exclude signature files and multi-release JAR version entries.
-                     META-INF/versions/** exclusion prevents "Collections sizes are not equals"
-                     error on Linux CI when shading multi-release JARs. -->
+                                    <!-- Exclude signature files and duplicate module descriptors.
+                                         module-info.class appears in multiple JARs and causes
+                                         "Collections sizes are not equals" in shade plugin 3.6.x on Linux. -->
                                     <artifact>*:*</artifact>
                                     <excludes>
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
                                         <exclude>META-INF/versions/**</exclude>
+                                        <exclude>module-info.class</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
