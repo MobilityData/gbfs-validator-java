@@ -118,8 +118,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <!-- Use older version: 3.6.0 and 3.6.1 have a bug: "Collections sizes are not equals" -->
-                <version>3.5.3</version>
+                <version>3.6.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -135,12 +134,15 @@
                             <finalName>gbfs-validator-cli</finalName>
                             <filters>
                                 <filter>
-                                    <!-- Exclude signature files -->
+                <!-- Exclude signature files and multi-release JAR version entries.
+                     META-INF/versions/** exclusion prevents "Collections sizes are not equals"
+                     error on Linux CI when shading multi-release JARs. -->
                                     <artifact>*:*</artifact>
                                     <excludes>
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/versions/**</exclude>
                                     </excludes>
                                 </filter>
                             </filters>

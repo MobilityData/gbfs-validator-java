@@ -16,6 +16,8 @@ jobs:
         with:
           java-version: '17'
           distribution: zulu
+      - name: Print Java and Maven versions
+        run: mvn --version
       - name: Cache Maven dependencies
         uses: actions/cache@v4
         with:

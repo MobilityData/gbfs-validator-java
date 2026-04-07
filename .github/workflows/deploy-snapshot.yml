@@ -30,6 +30,8 @@ jobs:
         with:
           java-version: ${{ env.java_version }}
           distribution: ${{ env.java_distribution }}
+      - name: Print Java and Maven versions
+        run: mvn --version
       - name: Cache Maven dependencies
         uses: actions/cache@v4
         with:
