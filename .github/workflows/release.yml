@@ -70,6 +70,14 @@ jobs:
           } >> "$GITHUB_ENV"
       - name: Stage artifacts
         run: mvn deploy -Ppublication -Dprettier.skip=true -ntp -e
+      - name: Debug - show resolved versions and staged artifacts
+        if: always()
+        run: |
+          echo "=== Git tag/describe ==="
+          git describe --tags --exact-match HEAD || echo "(no exact tag match)"
+          git describe --tags || echo "(no tags found)"
+          echo "=== Staging directory ==="
+          find target/staging-deploy -name "*.pom" | sort | head -30
       - name: Deploy to Maven Central
         # prereleased: USER_MANAGED — artifacts sit pending in the portal for review.
         # released:    AUTOMATIC   — artifacts are published immediately after validation.
