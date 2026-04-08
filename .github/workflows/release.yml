@@ -6,8 +6,8 @@ name: Release
 #     the pre-release to a full release when satisfied.
 #   - Publishing a full release → rebuilds and publishes artifacts to Maven Central immediately.
 #
-# The project version is derived automatically from the git tag via maven-git-versioning-extension.
-# No pom.xml version commits are needed.
+# The project version is derived from the git tag (e.g. v3.0.0 → 3.0.0) and applied to all
+# modules in-place via versions:set before building. No pom.xml version commits are needed.
 on:
   release:
     types: [prereleased, released]
@@ -68,21 +68,14 @@ jobs:
             echo "MAVEN_CENTRAL_PORTAL_TOKEN_USERNAME=$MVN_USER"
             echo "MAVEN_CENTRAL_PORTAL_TOKEN_PASSWORD=$MVN_PASS"
           } >> "$GITHUB_ENV"
-      - name: Debug - show resolved version before build
+      - name: Set release version from tag
         run: |
-          echo "=== Git state ==="
-          git describe --tags --exact-match HEAD || echo "(no exact tag match)"
-          git branch --show-current || echo "(detached HEAD)"
-          git log --oneline -1
-          echo "=== Extension config ==="
-          cat .mvn/maven-git-versioning-extension.xml
-          echo "=== Maven resolved version ==="
-          mvn help:evaluate -Dexpression=project.version -q -DforceStdout -Dversioning.verbose=true 2>&1 | tail -20
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"
+          echo "Setting version: $VERSION"
+          mvn --batch-mode -ntp versions:set -DnewVersion="$VERSION" -DprocessAllModules=true -DgenerateBackupPoms=false
       - name: Stage artifacts
-        run: mvn deploy -Ppublication -Dprettier.skip=true -ntp -e
-      - name: Debug - show staged artifacts
-        if: always()
-        run: find target/staging-deploy -name "*.pom" | sort | head -30
+        run: mvn deploy -Ppublication -Dprettier.skip=true -ntp
       - name: Deploy to Maven Central
         # prereleased: USER_MANAGED — artifacts sit pending in the portal for review.
         # released:    AUTOMATIC   — artifacts are published immediately after validation.
