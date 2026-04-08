@@ -70,10 +70,14 @@ jobs:
           } >> "$GITHUB_ENV"
       - name: Debug - show resolved version before build
         run: |
-          echo "=== Git tag/describe ==="
+          echo "=== Git state ==="
           git describe --tags --exact-match HEAD || echo "(no exact tag match)"
+          git branch --show-current || echo "(detached HEAD)"
+          git log --oneline -1
+          echo "=== Extension config ==="
+          cat .mvn/maven-git-versioning-extension.xml
           echo "=== Maven resolved version ==="
-          mvn help:evaluate -Dexpression=project.version -q -DforceStdout
+          mvn help:evaluate -Dexpression=project.version -q -DforceStdout -Dversioning.verbose=true 2>&1 | tail -20
       - name: Stage artifacts
         run: mvn deploy -Ppublication -Dprettier.skip=true -ntp -e
       - name: Debug - show staged artifacts
