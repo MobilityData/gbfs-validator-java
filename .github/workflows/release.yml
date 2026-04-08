@@ -1,16 +1,14 @@
 name: Release
 
-# Triggered by GitHub release events:
-#   - Creating a pre-release with tag vX.Y.Z → builds and stages artifacts to Maven Central
-#     (USER_MANAGED, pending). Review them at https://central.sonatype.com, then convert
-#     the pre-release to a full release when satisfied.
-#   - Publishing a full release → rebuilds and publishes artifacts to Maven Central immediately.
+# Triggered when a GitHub release is published (released).
+# Builds, signs, and publishes all artifacts to Maven Central automatically.
+# The CLI fat jar is also uploaded to the GitHub release assets.
 #
 # The project version is derived from the git tag (e.g. v3.0.0 → 3.0.0) and applied to all
 # modules in-place via versions:set before building. No pom.xml version commits are needed.
 on:
   release:
-    types: [prereleased, released]
+    types: [released]
 
 env:
   java_version: '17'
@@ -77,11 +75,7 @@ jobs:
       - name: Stage artifacts
         run: mvn deploy -Ppublication -Dprettier.skip=true -ntp
       - name: Deploy to Maven Central
-        # prereleased: USER_MANAGED — artifacts sit pending in the portal for review.
-        # released:    AUTOMATIC   — artifacts are published immediately after validation.
-        # jreleaser:deploy only handles Maven Central; GitHub release management is done by the GitHub UI.
         env:
-          JRELEASER_DEPLOY_MAVEN_MAVENCENTRAL_SONATYPE_PUBLISHING_TYPE: ${{ github.event.action == 'prereleased' && 'USER_MANAGED' || 'AUTOMATIC' }}
           JRELEASER_GPG_PASSPHRASE: ${{ env.MAVEN_GPG_PASSPHRASE }}
           JRELEASER_GPG_SECRET_KEY: ${{ env.MAVEN_GPG_PRIVATE_KEY }}
         run: mvn jreleaser:deploy -Djreleaser.output.directory=out -ntp
