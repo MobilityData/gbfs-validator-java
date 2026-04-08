@@ -72,6 +72,14 @@ jobs:
           VERSION="${TAG#v}"
           echo "Setting version: $VERSION"
           mvn --batch-mode -ntp versions:set -DnewVersion="$VERSION" -DprocessAllModules=true -DgenerateBackupPoms=false
+      - name: Verify version is not placeholder
+        run: |
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          if [[ "$VERSION" == *"placeholder"* || "$VERSION" == "0.0.0"* ]]; then
+            echo "ERROR: Version is still '$VERSION' — aborting release."
+            exit 1
+          fi
+          echo "Version OK: $VERSION"
       - name: Stage artifacts
         run: mvn deploy -Ppublication -Dprettier.skip=true -ntp
       - name: Deploy to Maven Central
