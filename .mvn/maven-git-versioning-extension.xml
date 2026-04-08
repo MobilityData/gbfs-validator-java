@@ -17,7 +17,7 @@
 
     <!-- Any other branch: use branch name + SNAPSHOT for local development -->
     <ref type="branch" pattern=".*">
-      <version>${describe.tag.version.major}.${describe.tag.version.minor}.${describe.tag.version.patch.next}-${ref.name.slugified}-SNAPSHOT</version>
+      <version>${describe.tag.version.major}.${describe.tag.version.minor}.${describe.tag.version.patch.next}-SNAPSHOT</version>
     </ref>
   </refs>
 </configuration>
