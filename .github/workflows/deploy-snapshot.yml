@@ -8,7 +8,6 @@ on:
   push:
     branches:
       - master
-      - 187-create-mobilitydata-maven-packages  # TEMPORARY: remove after testing
   workflow_dispatch:  # Manual trigger
 
 env:
@@ -70,7 +69,9 @@ jobs:
         env:
           JRELEASER_GPG_PASSPHRASE: ${{ env.MAVEN_GPG_PASSPHRASE }}
           JRELEASER_GPG_SECRET_KEY: ${{ env.MAVEN_GPG_PRIVATE_KEY }}
-        run: mvn jreleaser:deploy -Djreleaser.output.directory=out -ntp
+        # -N (non-recursive): run JReleaser only at the root so it uploads a single bundle.
+        # Without it, JReleaser runs once per module and the second run fails with "already deployed".
+        run: mvn jreleaser:deploy -Djreleaser.output.directory=out -ntp -N
       - name: Upload JReleaser output
         if: always()
         uses: actions/upload-artifact@v4

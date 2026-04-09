@@ -9,7 +9,6 @@
     </parent>
 
     <artifactId>gbfs-validator-java</artifactId>
-    <version>0.0.0-placeholder</version>
     <packaging>jar</packaging>
 
     <name>gbfs-validator-java</name>
