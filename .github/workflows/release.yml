@@ -93,7 +93,7 @@ jobs:
         env:
           JRELEASER_GPG_PASSPHRASE: ${{ env.MAVEN_GPG_PASSPHRASE }}
           JRELEASER_GPG_SECRET_KEY: ${{ env.MAVEN_GPG_PRIVATE_KEY }}
-        run: mvn jreleaser:deploy -Djreleaser.output.directory=out -ntp
+        run: mvn jreleaser:deploy -Djreleaser.output.directory=out -ntp -N
       - name: Upload JReleaser output
         if: always()
         uses: actions/upload-artifact@v4
