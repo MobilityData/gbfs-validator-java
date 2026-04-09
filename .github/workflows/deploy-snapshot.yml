@@ -42,7 +42,8 @@ jobs:
             ${{ runner.os }}-
       - name: Load secrets from 1Password
         if: env.HAS_1PASSWORD == 'true'
-        uses: MobilityData/gtfs-validator/.github/actions/extract-1password-secret@master
+        # Pinned to a specific tag for supply-chain safety. Update the tag in gtfs-validator if the action changes.
+        uses: MobilityData/gtfs-validator/.github/actions/extract-1password-secret@USED_BY_GBFS_VALIDATOR_JAVA # 7bf2832
         with:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
           VARIABLES_TO_EXTRACT: 'MAVEN_GPG_PASSPHRASE, MAVEN_GPG_PRIVATE_KEY, MAVEN_CENTRAL_PORTAL_TOKEN_USERNAME, MAVEN_CENTRAL_PORTAL_TOKEN_PASSWORD'
@@ -63,6 +64,14 @@ jobs:
             echo "MAVEN_CENTRAL_PORTAL_TOKEN_USERNAME=$MVN_USER"
             echo "MAVEN_CENTRAL_PORTAL_TOKEN_PASSWORD=$MVN_PASS"
           } >> "$GITHUB_ENV"
+      - name: Verify version is not placeholder
+        run: |
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          if [[ "$VERSION" == *"placeholder"* || "$VERSION" == "0.0.0"* ]]; then
+            echo "ERROR: Version is still '$VERSION' — git-versioning extension failed to resolve. Aborting."
+            exit 1
+          fi
+          echo "Version OK: $VERSION"
       - name: Stage artifacts
         run: mvn deploy -Ppublication -Dprettier.skip=true -ntp
       - name: Publish snapshot to Maven Central
