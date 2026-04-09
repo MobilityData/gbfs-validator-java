@@ -12,13 +12,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.mobilitydata.gbfs.validator.loader.auth.BasicAuth;
-import org.mobilitydata.gbfs.validator.loader.auth.BearerTokenAuth;
-import org.mobilitydata.gbfs.validator.loader.auth.OAuthClientCredentialsGrantAuth;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mobilitydata.gbfs.validator.loader.auth.BasicAuth;
+import org.mobilitydata.gbfs.validator.loader.auth.BearerTokenAuth;
+import org.mobilitydata.gbfs.validator.loader.auth.OAuthClientCredentialsGrantAuth;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)

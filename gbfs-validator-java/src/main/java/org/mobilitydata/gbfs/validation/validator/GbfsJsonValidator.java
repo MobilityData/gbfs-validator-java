@@ -33,6 +33,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.mobilitydata.gbfs.validation.GbfsValidator;
 import org.mobilitydata.gbfs.validation.model.FileValidationResult;
 import org.mobilitydata.gbfs.validation.model.ValidationResult;
@@ -40,8 +42,6 @@ import org.mobilitydata.gbfs.validation.model.ValidationSummary;
 import org.mobilitydata.gbfs.validation.model.ValidatorError; // Changed to use model.SystemError
 import org.mobilitydata.gbfs.validation.validator.versions.Version;
 import org.mobilitydata.gbfs.validation.validator.versions.VersionFactory;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

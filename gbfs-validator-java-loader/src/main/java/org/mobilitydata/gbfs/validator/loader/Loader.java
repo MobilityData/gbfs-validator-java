@@ -50,12 +50,12 @@ import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.util.Timeout;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.mobilitydata.gbfs.validator.loader.auth.Authentication;
 import org.mobilitydata.gbfs.validator.loader.auth.BasicAuth;
 import org.mobilitydata.gbfs.validator.loader.auth.BearerTokenAuth;
 import org.mobilitydata.gbfs.validator.loader.auth.OAuthClientCredentialsGrantAuth;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 
 /**
  * Loads GBFS (General Bikeshare Feed Specification) files from HTTP/HTTPS URLs or local file system.

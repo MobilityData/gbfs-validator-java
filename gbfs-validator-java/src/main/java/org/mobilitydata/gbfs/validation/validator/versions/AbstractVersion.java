@@ -33,14 +33,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.mobilitydata.gbfs.validation.validator.FileValidator;
-import org.mobilitydata.gbfs.validation.validator.URIFormatValidator;
-import org.mobilitydata.gbfs.validation.validator.rules.CustomRuleSchemaPatcher;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.mobilitydata.gbfs.validation.validator.FileValidator;
+import org.mobilitydata.gbfs.validation.validator.URIFormatValidator;
+import org.mobilitydata.gbfs.validation.validator.rules.CustomRuleSchemaPatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

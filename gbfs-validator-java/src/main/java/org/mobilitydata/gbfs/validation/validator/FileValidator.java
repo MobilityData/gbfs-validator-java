@@ -22,12 +22,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import org.everit.json.schema.ValidationException;
+import org.json.JSONObject;
 import org.mobilitydata.gbfs.validation.model.FileValidationError;
 import org.mobilitydata.gbfs.validation.model.FileValidationResult;
 import org.mobilitydata.gbfs.validation.validator.versions.Version;
 import org.mobilitydata.gbfs.validation.validator.versions.VersionFactory;
-import org.everit.json.schema.ValidationException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

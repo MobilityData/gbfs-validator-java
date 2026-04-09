@@ -28,11 +28,11 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mobilitydata.gbfs.validation.model.FileValidationResult;
 import org.mobilitydata.gbfs.validation.model.ValidationResult;
 import org.mobilitydata.gbfs.validation.model.ValidatorError;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 class GbfsJsonValidatorTest {
