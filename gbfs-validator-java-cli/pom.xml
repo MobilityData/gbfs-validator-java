@@ -133,7 +133,7 @@
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.entur.gbfs.validator.cli.GbfsValidatorCli</mainClass>
+                                    <mainClass>org.mobilitydata.gbfs.validator.cli.GbfsValidatorCli</mainClass>
                                 </transformer>
                             </transformers>
                             <finalName>gbfs-validator-cli</finalName>
