@@ -1,4 +1,15 @@
 name: Release
+# Required secrets / variables:
+#
+#   Secrets are loaded from 1Password when both of the following are set:
+#     - secrets.OP_SERVICE_ACCOUNT_TOKEN   — 1Password service account token
+#     - vars.ONE_PASSWORD_SECRET_REFERENCES — 1Password secret references for the variables below
+#
+#   Without 1Password, set these GitHub repository secrets directly as a fallback:
+#     - MAVEN_GPG_PRIVATE_KEY              — armored GPG private key (used to sign artifacts)
+#     - MAVEN_GPG_PASSPHRASE               — passphrase for the GPG key
+#     - MAVEN_CENTRAL_PORTAL_TOKEN_USERNAME — Maven Central portal token username
+#     - MAVEN_CENTRAL_PORTAL_TOKEN_PASSWORD — Maven Central portal token password
 
 # Triggered when a GitHub release is published (released).
 # Builds, signs, and publishes all artifacts to Maven Central automatically.
