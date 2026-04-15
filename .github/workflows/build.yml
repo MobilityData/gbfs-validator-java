@@ -5,6 +5,10 @@ on:
       - master
   workflow_dispatch:
 
+env:
+  java_version: '17'
+  java_distribution: 'zulu'
+
 jobs:
   maven-package:
     runs-on: ubuntu-24.04
@@ -12,10 +16,11 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - uses: actions/setup-java@v5
+      - name: Set up JDK ${{ env.java_version }}-${{ env.java_distribution }}
+        uses: actions/setup-java@v5
         with:
-          java-version: '17'
-          distribution: zulu
+          java-version: ${{ env.java_version }}
+          distribution: ${{ env.java_distribution }}
       - name: Print Java and Maven versions
         run: mvn --version
       - name: Cache Maven dependencies
