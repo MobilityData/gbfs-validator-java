@@ -4,20 +4,20 @@
     <parent>
         <groupId>org.mobilitydata</groupId>
         <artifactId>gbfs-validator-java-parent</artifactId>
-        <version>2.0.67</version>
+        <!-- Version is derived at build time from the latest git tag via maven-git-versioning-extension (.mvn/). -->
+        <version>0.0.0-placeholder</version>
     </parent>
 
     <artifactId>gbfs-validator-java</artifactId>
-    <version>2.0.67</version>
     <packaging>jar</packaging>
 
     <name>gbfs-validator-java</name>
     <description>Validate GBFS feeds</description>
-    <url>https://github.com/entur/gbfs-validator-java</url>
+    <url>https://github.com/MobilityData/gbfs-validator-java</url>
 
     <organization>
-        <name>Entur AS</name>
-        <url>http://www.entur.org/</url>
+        <name>MobilityData</name>
+        <url>https://mobilitydata.org/</url>
     </organization>
 
     <licenses>

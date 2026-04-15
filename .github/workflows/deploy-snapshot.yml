@@ -1,0 +1,100 @@
+name: Publish Snapshot
+# Required secrets / variables:
+#
+#   Secrets are loaded from 1Password when both of the following are set:
+#     - secrets.OP_SERVICE_ACCOUNT_TOKEN   — 1Password service account token
+#     - vars.ONE_PASSWORD_SECRET_REFERENCES — 1Password secret references for the variables below
+#
+#   Without 1Password, set these GitHub repository secrets directly as a fallback:
+#     - MAVEN_GPG_PRIVATE_KEY              — armored GPG private key (used to sign artifacts)
+#     - MAVEN_GPG_PASSPHRASE               — passphrase for the GPG key
+#     - MAVEN_CENTRAL_PORTAL_TOKEN_USERNAME — Maven Central portal token username
+#     - MAVEN_CENTRAL_PORTAL_TOKEN_PASSWORD — Maven Central portal token password
+
+concurrency:
+  group: deploy-master
+  cancel-in-progress: false
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:  # Manual trigger
+
+env:
+  java_version: '17'
+  java_distribution: 'zulu'
+
+jobs:
+  publish-snapshot:
+    if: "github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, 'ci skip')"
+    runs-on: ubuntu-24.04
+    env:
+      HAS_1PASSWORD: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN != '' && vars.ONE_PASSWORD_SECRET_REFERENCES != '' }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Set up JDK ${{ env.java_version }}-${{ env.java_distribution }}
+        uses: actions/setup-java@v5
+        with:
+          java-version: ${{ env.java_version }}
+          distribution: ${{ env.java_distribution }}
+      - name: Print Java and Maven versions
+        run: mvn --version
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+            ${{ runner.os }}-maven-
+            ${{ runner.os }}-
+      - name: Load secrets from 1Password
+        if: env.HAS_1PASSWORD == 'true'
+        # Pinned to a specific tag for supply-chain safety. Update the tag in gtfs-validator if the action changes.
+        uses: MobilityData/gtfs-validator/.github/actions/extract-1password-secret@USED_BY_GBFS_VALIDATOR_JAVA # 7bf2832
+        with:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          VARIABLES_TO_EXTRACT: 'MAVEN_GPG_PASSPHRASE, MAVEN_GPG_PRIVATE_KEY, MAVEN_CENTRAL_PORTAL_TOKEN_USERNAME, MAVEN_CENTRAL_PORTAL_TOKEN_PASSWORD'
+          ONE_PASSWORD_SECRET_REFERENCES: ${{ vars.ONE_PASSWORD_SECRET_REFERENCES }}
+      - name: Load secrets from GitHub secrets (fallback for forks without 1Password)
+        if: env.HAS_1PASSWORD != 'true'
+        env:
+          GPG_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          GPG_PASS: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+          MVN_USER: ${{ secrets.MAVEN_CENTRAL_PORTAL_TOKEN_USERNAME }}
+          MVN_PASS: ${{ secrets.MAVEN_CENTRAL_PORTAL_TOKEN_PASSWORD }}
+        run: |
+          {
+            echo "MAVEN_GPG_PASSPHRASE=$GPG_PASS"
+            echo "MAVEN_GPG_PRIVATE_KEY<<GPG_EOF"
+            echo "$GPG_KEY"
+            echo "GPG_EOF"
+            echo "MAVEN_CENTRAL_PORTAL_TOKEN_USERNAME=$MVN_USER"
+            echo "MAVEN_CENTRAL_PORTAL_TOKEN_PASSWORD=$MVN_PASS"
+          } >> "$GITHUB_ENV"
+      - name: Verify version is not placeholder
+        run: |
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          if [[ "$VERSION" == *"placeholder"* || "$VERSION" == "0.0.0"* ]]; then
+            echo "ERROR: Version is still '$VERSION' — git-versioning extension failed to resolve. Aborting."
+            exit 1
+          fi
+          echo "Version OK: $VERSION"
+      - name: Stage artifacts
+        run: mvn deploy -Ppublication -Dprettier.skip=true -ntp
+      - name: Publish snapshot to Maven Central
+        env:
+          JRELEASER_GPG_PASSPHRASE: ${{ env.MAVEN_GPG_PASSPHRASE }}
+          JRELEASER_GPG_SECRET_KEY: ${{ env.MAVEN_GPG_PRIVATE_KEY }}
+        # -N (non-recursive): run JReleaser only at the root so it uploads a single bundle.
+        # Without it, JReleaser runs once per module and the second run fails with "already deployed".
+        run: mvn jreleaser:deploy -Djreleaser.output.directory=out -ntp -N
+      - name: Upload JReleaser output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jreleaser-snapshot-logs
+          path: out/

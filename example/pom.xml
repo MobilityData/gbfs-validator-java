@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.mobilitydata</groupId>
+    <artifactId>gbfs-validator-java-example</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>GBFS Validator Java Example</name>
+    <description>
+        Example project showing how to use the gbfs-validator-java library
+        to validate GBFS feeds programmatically.
+    </description>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- To use a snapshot, change this to e.g. 3.0.4-SNAPSHOT -->
+        <gbfs-validator.version>3.0.3</gbfs-validator.version>
+    </properties>
+
+    <repositories>
+        <!-- Required to resolve SNAPSHOT versions -->
+        <repository>
+            <id>central-snapshots</id>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- Core validator library -->
+        <dependency>
+            <groupId>org.mobilitydata</groupId>
+            <artifactId>gbfs-validator-java</artifactId>
+            <version>${gbfs-validator.version}</version>
+        </dependency>
+    </dependencies>
+
+
+</project>

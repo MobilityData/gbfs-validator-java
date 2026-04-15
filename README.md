@@ -8,6 +8,10 @@ Validate GBFS feeds. Intended as Java native alternative to https://github.com/M
 
 Uses the official json schema to validate files.
 
+## Example
+
+See the [`example/`](example/) directory for a working Maven project that depends on this library as a published artifact.
+
 ## Usage
 
 Create an instance of `GbfsValidator`:
