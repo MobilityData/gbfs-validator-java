@@ -21,10 +21,10 @@
 package org.mobilitydata.gbfs.validation.validator.rules;
 
 import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
 import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.mobilitydata.gbfs.validation.validator.SchemaJsonPath;
 
 /**
  * A vehicle's pricing_plan_id must exist in the system's system_pricing_plan file
@@ -63,7 +63,7 @@ public class NoInvalidReferenceToPricingPlansInVehicleStatus
     );
 
     JSONArray pricingPlanIds = pricingPlansFeed != null
-      ? JsonPath.parse(pricingPlansFeed).read("$.data.plans[*].plan_id")
+      ? SchemaJsonPath.parse(pricingPlansFeed).read("$.data.plans[*].plan_id")
       : new JSONArray();
     pricingPlanIdSchema.put("enum", pricingPlanIds);
 

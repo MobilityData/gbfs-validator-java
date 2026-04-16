@@ -21,10 +21,10 @@
 package org.mobilitydata.gbfs.validation.validator.rules;
 
 import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
 import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.mobilitydata.gbfs.validation.validator.SchemaJsonPath;
 
 /**
  * References to vehicle types in station_status must exist in the system's vehicle_types file
@@ -57,7 +57,7 @@ public class NoInvalidReferenceToVehicleTypesInStationStatus
 
     // If no vehicle_types feed is defined, then any vehicle_type_id would be invalid
     JSONArray vehicleTypeIds = vehicleTypesFeed != null
-      ? JsonPath
+      ? SchemaJsonPath
         .parse(vehicleTypesFeed)
         .read("$.data.vehicle_types[*].vehicle_type_id")
       : new JSONArray();

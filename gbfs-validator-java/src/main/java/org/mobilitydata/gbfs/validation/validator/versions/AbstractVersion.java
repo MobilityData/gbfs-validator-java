@@ -18,20 +18,11 @@
 
 package org.mobilitydata.gbfs.validation.validator.versions;
 
-import com.jayway.jsonpath.Configuration;
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.Option;
-import com.jayway.jsonpath.spi.json.JsonOrgJsonProvider;
-import com.jayway.jsonpath.spi.json.JsonProvider;
-import com.jayway.jsonpath.spi.mapper.JsonOrgMappingProvider;
-import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import java.io.InputStream;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
@@ -39,6 +30,7 @@ import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.mobilitydata.gbfs.validation.validator.FileValidator;
+import org.mobilitydata.gbfs.validation.validator.SchemaJsonPath;
 import org.mobilitydata.gbfs.validation.validator.URIFormatValidator;
 import org.mobilitydata.gbfs.validation.validator.rules.CustomRuleSchemaPatcher;
 import org.slf4j.Logger;
@@ -53,30 +45,6 @@ public abstract class AbstractVersion implements Version {
   private final List<String> feeds;
   private final Map<String, JSONObject> schemas = new ConcurrentHashMap<>();
   private final Map<String, List<CustomRuleSchemaPatcher>> customRules;
-
-  static {
-    Configuration.setDefaults(
-      new Configuration.Defaults() {
-        final JsonProvider jsonProvider = new JsonOrgJsonProvider();
-        final MappingProvider mappingProvider = new JsonOrgMappingProvider();
-
-        @Override
-        public JsonProvider jsonProvider() {
-          return jsonProvider;
-        }
-
-        @Override
-        public Set<Option> options() {
-          return EnumSet.noneOf(Option.class);
-        }
-
-        @Override
-        public MappingProvider mappingProvider() {
-          return mappingProvider;
-        }
-      }
-    );
-  }
 
   protected AbstractVersion(
     String versionString,
@@ -157,7 +125,7 @@ public abstract class AbstractVersion implements Version {
   ) {
     // Must make a copy of the schema, otherwise it will be mutated by json-path
     return patcher
-      .addRule(JsonPath.parse(new JSONObject(schema.toMap())), feedMap)
+      .addRule(SchemaJsonPath.parse(new JSONObject(schema.toMap())), feedMap)
       .json();
   }
 

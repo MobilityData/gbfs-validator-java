@@ -21,10 +21,10 @@
 package org.mobilitydata.gbfs.validation.validator.rules;
 
 import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
 import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.mobilitydata.gbfs.validation.validator.SchemaJsonPath;
 
 /**
  * References to stations in station_information must exist in station_status file and vice versa.
@@ -55,7 +55,7 @@ public class NoInvalidReferenceToStation implements CustomRuleSchemaPatcher {
     );
 
     JSONArray stationIds = stationReferenceFeed != null
-      ? JsonPath
+      ? SchemaJsonPath
         .parse(stationReferenceFeed)
         .read("$.data.stations[*].station_id")
       : new JSONArray();
