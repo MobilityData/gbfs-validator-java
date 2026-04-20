@@ -21,10 +21,10 @@
 package org.mobilitydata.gbfs.validation.validator.rules;
 
 import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
 import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.mobilitydata.gbfs.validation.validator.SchemaJsonPath;
 
 /**
  * References to regions in station_information must exist in the system's system_regions file
@@ -49,7 +49,9 @@ public class NoInvalidReferenceToRegionInStationInformation
     );
 
     JSONArray regionIds = systemRegionsFeed != null
-      ? JsonPath.parse(systemRegionsFeed).read("$.data.regions[*].region_id")
+      ? SchemaJsonPath
+        .parse(systemRegionsFeed)
+        .read("$.data.regions[*].region_id")
       : new JSONArray();
 
     regionIdSchema.put("enum", regionIds);

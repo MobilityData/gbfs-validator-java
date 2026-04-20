@@ -24,11 +24,11 @@ import static com.jayway.jsonpath.Criteria.where;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.Filter;
-import com.jayway.jsonpath.JsonPath;
 import java.util.List;
 import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.mobilitydata.gbfs.validation.validator.SchemaJsonPath;
 
 /**
  * It is required to provide the current_range_meters property in vehicle_status for motorized vehicles
@@ -64,7 +64,7 @@ public class NoMissingCurrentRangeMetersInVehicleStatusForMotorizedVehicles
 
     if (vehicleTypesFeed != null) {
       motorizedVehicleTypeIds =
-        JsonPath
+        SchemaJsonPath
           .parse(vehicleTypesFeed)
           .read(
             "$.data.vehicle_types[?].vehicle_type_id",

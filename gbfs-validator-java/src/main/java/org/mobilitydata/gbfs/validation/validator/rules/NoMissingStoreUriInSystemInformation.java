@@ -21,10 +21,10 @@
 package org.mobilitydata.gbfs.validation.validator.rules;
 
 import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
 import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.mobilitydata.gbfs.validation.validator.SchemaJsonPath;
 
 /**
  * It is required to provide ios and android store uris in system_information if vehicle_status
@@ -61,7 +61,7 @@ public class NoMissingStoreUriInSystemInformation
 
       if (
         !(
-          (JSONArray) JsonPath
+          (JSONArray) SchemaJsonPath
             .parse(vehicleStatusFeed)
             .read("$.data." + vehiclesKey + "[:1].rental_uris.ios")
         ).isEmpty()
@@ -71,7 +71,7 @@ public class NoMissingStoreUriInSystemInformation
 
       if (
         !(
-          (JSONArray) JsonPath
+          (JSONArray) SchemaJsonPath
             .parse(vehicleStatusFeed)
             .read("$.data." + vehiclesKey + "[:1].rental_uris.android")
         ).isEmpty()
@@ -85,7 +85,7 @@ public class NoMissingStoreUriInSystemInformation
     if (stationInformationFeed != null) {
       if (
         !(
-          (JSONArray) JsonPath
+          (JSONArray) SchemaJsonPath
             .parse(stationInformationFeed)
             .read("$.data.stations[:1].rental_uris.ios")
         ).isEmpty()
@@ -95,7 +95,7 @@ public class NoMissingStoreUriInSystemInformation
 
       if (
         !(
-          (JSONArray) JsonPath
+          (JSONArray) SchemaJsonPath
             .parse(stationInformationFeed)
             .read("$.data.stations[:1].rental_uris.android")
         ).isEmpty()
