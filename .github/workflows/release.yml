@@ -56,8 +56,8 @@ jobs:
             ${{ runner.os }}-
       - name: Load secrets from 1Password
         if: env.HAS_1PASSWORD == 'true'
-        # Pinned to a specific tag for supply-chain safety. Update the tag in gtfs-validator if the action changes.
-        uses: MobilityData/gtfs-validator/.github/actions/extract-1password-secret@USED_BY_GBFS_VALIDATOR_JAVA # 7bf2832
+        # Uses the official gtfs-validator release tag. Update to a newer release tag when the action changes.
+        uses: MobilityData/gtfs-validator/.github/actions/extract-1password-secret@v7.1.0
         with:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
           VARIABLES_TO_EXTRACT: 'MAVEN_GPG_PASSPHRASE, MAVEN_GPG_PRIVATE_KEY, MAVEN_CENTRAL_PORTAL_TOKEN_USERNAME, MAVEN_CENTRAL_PORTAL_TOKEN_PASSWORD'
