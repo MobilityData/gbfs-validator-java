@@ -336,6 +336,16 @@ public class GbfsJsonValidator implements GbfsValidator {
     }
   }
 
+  /**
+   * Creates a validation result for a file that could not be parsed. Parsing can fail before
+   * the exact version for a single file is known, so this resolves the best schema version
+   * available and still returns file metadata alongside the parse errors.
+   *
+   * @param feedName The GBFS feed name
+   * @param parsedContainer The parsed container holding original content and parse errors
+   * @param preferredVersion The initially preferred GBFS version
+   * @return A file validation result containing parse errors and any schema metadata that could be resolved
+   */
   private FileValidationResult createParsingErrorResult(
     String feedName,
     ParsedFeedContainer parsedContainer,
@@ -357,6 +367,15 @@ public class GbfsJsonValidator implements GbfsValidator {
     );
   }
 
+  /**
+   * Resolves the version to use for a feed when building parse-error results. Some feed types
+   * may not exist in the initially detected version, so this falls back to the newest version
+   * that supports the feed in order to point the error result at a schema when possible.
+   *
+   * @param feedName The GBFS feed name
+   * @param preferredVersion The initially detected or preferred GBFS version
+   * @return The preferred version when it supports the feed, otherwise the newest version that does
+   */
   private Version resolveVersionForFeed(
     String feedName,
     Version preferredVersion
