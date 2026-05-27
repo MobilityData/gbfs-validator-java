@@ -51,8 +51,8 @@
     </scm>
     <properties>
         <jdk.version>17</jdk.version>
-        <gbfsGithubUrl>https://github.com/MobilityData/gbfs-json-schema/archive/refs/tags/v4.0.0.zip</gbfsGithubUrl>
-        <schemaVersion>4.0.0</schemaVersion>
+        <gbfsGithubUrl>https://github.com/MobilityData/gbfs-json-schema/archive/refs/tags/v4.3.0.zip</gbfsGithubUrl>
+        <schemaVersion>4.3.0</schemaVersion>
 
         <everit-json-schema.version>1.14.6</everit-json-schema.version>
         <slf4j.version>2.0.17</slf4j.version>
@@ -310,7 +310,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven-javadoc-plugin.version}</version>
                 <configuration>
-                    <additionalparam>-Xdoclint:none</additionalparam>
+                    <additionalOptions>-Xdoclint:none</additionalOptions>
                 </configuration>
                 <executions>
                     <execution>
