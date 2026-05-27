@@ -19,8 +19,6 @@
 package org.mobilitydata.gbfs.validation.validator;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -33,7 +31,6 @@ import org.junit.jupiter.api.Test;
 import org.mobilitydata.gbfs.validation.model.FileValidationResult;
 import org.mobilitydata.gbfs.validation.model.ValidationResult;
 import org.mobilitydata.gbfs.validation.model.ValidatorError;
-import org.mockito.Mockito;
 
 class GbfsJsonValidatorTest {
 
@@ -367,6 +364,73 @@ class GbfsJsonValidatorTest {
   }
 
   @Test
+  void testSuccessfulV3_1RC3Validation() {
+    GbfsJsonValidator validator = new GbfsJsonValidator();
+
+    Map<String, InputStream> deliveryMap = new HashMap<>();
+    deliveryMap.put("gbfs", getFixture("fixtures/v3.1-RC3/gbfs.json"));
+    deliveryMap.put(
+      "gbfs_versions",
+      getFixture("fixtures/v3.1-RC3/gbfs_versions.json")
+    );
+    deliveryMap.put(
+      "system_information",
+      getFixture("fixtures/v3.1-RC3/system_information.json")
+    );
+    deliveryMap.put(
+      "vehicle_types",
+      getFixture("fixtures/v3.1-RC3/vehicle_types.json")
+    );
+    deliveryMap.put(
+      "station_information",
+      getFixture("fixtures/v3.1-RC3/station_information.json")
+    );
+    deliveryMap.put(
+      "station_status",
+      getFixture("fixtures/v3.1-RC3/station_status.json")
+    );
+    deliveryMap.put(
+      "vehicle_status",
+      getFixture("fixtures/v3.1-RC3/vehicle_status.json")
+    );
+    deliveryMap.put("manifest", getFixture("fixtures/v3.1-RC3/manifest.json"));
+    deliveryMap.put(
+      "system_regions",
+      getFixture("fixtures/v3.1-RC3/system_regions.json")
+    );
+    deliveryMap.put(
+      "system_pricing_plans",
+      getFixture("fixtures/v3.1-RC3/system_pricing_plans.json")
+    );
+    deliveryMap.put(
+      "system_alerts",
+      getFixture("fixtures/v3.1-RC3/system_alerts.json")
+    );
+    deliveryMap.put(
+      "geofencing_zones",
+      getFixture("fixtures/v3.1-RC3/geofencing_zones.json")
+    );
+    deliveryMap.put(
+      "vehicle_availability",
+      getFixture("fixtures/v3.1-RC3/vehicle_availability.json")
+    );
+
+    ValidationResult result = validator.validate(deliveryMap);
+
+    printErrors("3.1-RC3", result);
+
+    Assertions.assertEquals("3.1-RC3", result.summary().version());
+    Assertions.assertEquals(0, result.summary().errorsCount());
+    Assertions.assertTrue(result.files().get("manifest").exists());
+    Assertions.assertEquals(0, result.files().get("manifest").errorsCount());
+    Assertions.assertTrue(result.files().get("vehicle_availability").exists());
+    Assertions.assertEquals(
+      0,
+      result.files().get("vehicle_availability").errorsCount()
+    );
+  }
+
+  @Test
   void testFailed2_3Validation() {
     GbfsJsonValidator validator = new GbfsJsonValidator();
 
@@ -380,6 +444,23 @@ class GbfsJsonValidatorTest {
 
     Assertions.assertEquals("2.3", result.version());
     Assertions.assertEquals(6, result.errorsCount());
+  }
+
+  @Test
+  void testMalformedVehicleAvailabilityReturnsParseError() {
+    GbfsJsonValidator validator = new GbfsJsonValidator();
+
+    FileValidationResult result = validator.validateFile(
+      "vehicle_availability",
+      new ByteArrayInputStream("{".getBytes(StandardCharsets.UTF_8))
+    );
+
+    Assertions.assertFalse(result.validatorErrors().isEmpty());
+    Assertions.assertEquals(
+      "PARSE_ERROR",
+      result.validatorErrors().get(0).error()
+    );
+    Assertions.assertNotNull(result.schema());
   }
 
   @Test

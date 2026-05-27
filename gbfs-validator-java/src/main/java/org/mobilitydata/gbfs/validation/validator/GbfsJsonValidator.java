@@ -77,12 +77,13 @@ public class GbfsJsonValidator implements GbfsValidator {
     "station_status",
     "free_bike_status",
     "vehicle_status",
+    "vehicle_availability",
+    "manifest",
     "system_hours",
-    "system_alerts",
-    "system_alerts",
     "system_calendar",
     "system_regions",
     "system_pricing_plans",
+    "system_alerts",
     "geofencing_zones"
   );
 
@@ -110,17 +111,10 @@ public class GbfsJsonValidator implements GbfsValidator {
       }
 
       if (parsedContainer.jsonObject() == null) {
-        // Parsing failed or stream read error
-        FileValidationResult result = new FileValidationResult(
+        FileValidationResult result = createParsingErrorResult(
           feedName,
-          version.isFileRequired(feedName),
-          true,
-          0,
-          version.getSchema(feedName).toString(),
-          parsedContainer.originalContent(),
-          null,
-          Collections.emptyList(),
-          parsedContainer.parsingErrors()
+          parsedContainer,
+          version
         );
         fileValidations.put(feedName, result);
       } else {
@@ -183,19 +177,10 @@ public class GbfsJsonValidator implements GbfsValidator {
     ParsedFeedContainer parsedContainer = parseFeed(fileName, file);
 
     if (parsedContainer.jsonObject() == null) {
-      // Determine version for schema and requirement - this is tricky for a single file
-      // For now, using default version. A more robust approach might require context.
-      Version tempVersion = VersionFactory.createVersion(DEFAULT_VERSION);
-      return new FileValidationResult(
+      return createParsingErrorResult(
         fileName,
-        tempVersion.isFileRequired(fileName),
-        true, // File was provided
-        0,
-        tempVersion.getSchema(fileName).toString(),
-        parsedContainer.originalContent(),
-        null, // File specific version unknown
-        Collections.emptyList(),
-        parsedContainer.parsingErrors()
+        parsedContainer,
+        VersionFactory.createVersion(DEFAULT_VERSION)
       );
     } else {
       return validateFile(
@@ -349,5 +334,40 @@ public class GbfsJsonValidator implements GbfsValidator {
         asString
       );
     }
+  }
+
+  private FileValidationResult createParsingErrorResult(
+    String feedName,
+    ParsedFeedContainer parsedContainer,
+    Version preferredVersion
+  ) {
+    Version schemaVersion = resolveVersionForFeed(feedName, preferredVersion);
+    boolean supportedFeed = schemaVersion.getFileNames().contains(feedName);
+
+    return new FileValidationResult(
+      feedName,
+      supportedFeed && schemaVersion.isFileRequired(feedName),
+      true,
+      0,
+      supportedFeed ? schemaVersion.getSchema(feedName).toString() : null,
+      parsedContainer.originalContent(),
+      null,
+      Collections.emptyList(),
+      parsedContainer.parsingErrors()
+    );
+  }
+
+  private Version resolveVersionForFeed(
+    String feedName,
+    Version preferredVersion
+  ) {
+    if (preferredVersion.getFileNames().contains(feedName)) {
+      return preferredVersion;
+    }
+
+    return VersionFactory.createLatestVersionSupportingFeed(
+      feedName,
+      preferredVersion.getVersionString()
+    );
   }
 }

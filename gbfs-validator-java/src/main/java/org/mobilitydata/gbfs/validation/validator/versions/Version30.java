@@ -36,7 +36,7 @@ public class Version30 extends AbstractVersion {
 
   public static final String VERSION = "3.0";
 
-  private static final List<String> feeds = Arrays.asList(
+  private static final List<String> FEEDS = Arrays.asList(
     "gbfs",
     "gbfs_versions",
     "system_information",
@@ -51,37 +51,36 @@ public class Version30 extends AbstractVersion {
     "geofencing_zones"
   );
 
-  private static final Map<String, List<CustomRuleSchemaPatcher>> customRules =
-    Map.of(
-      "vehicle_types",
-      List.of(new NoInvalidReferenceToPricingPlansInVehicleTypes()),
-      "station_status",
-      List.of(
-        new NoInvalidReferenceToVehicleTypesInStationStatus(),
-        new NoMissingVehicleTypesAvailableWhenVehicleTypesExists(),
-        new NoInvalidReferenceToStation("station_information")
+  static final Map<String, List<CustomRuleSchemaPatcher>> CUSTOM_RULES = Map.of(
+    "vehicle_types",
+    List.of(new NoInvalidReferenceToPricingPlansInVehicleTypes()),
+    "station_status",
+    List.of(
+      new NoInvalidReferenceToVehicleTypesInStationStatus(),
+      new NoMissingVehicleTypesAvailableWhenVehicleTypesExists(),
+      new NoInvalidReferenceToStation("station_information")
+    ),
+    "vehicle_status",
+    List.of(
+      new NoMissingOrInvalidVehicleTypeIdInVehicleStatusWhenVehicleTypesExist(
+        "vehicle_status"
       ),
-      "vehicle_status",
-      List.of(
-        new NoMissingOrInvalidVehicleTypeIdInVehicleStatusWhenVehicleTypesExist(
-          "vehicle_status"
-        ),
-        new NoMissingCurrentRangeMetersInVehicleStatusForMotorizedVehicles(
-          "vehicle_status"
-        ),
-        new NoInvalidReferenceToPricingPlansInVehicleStatus("vehicle_status")
+      new NoMissingCurrentRangeMetersInVehicleStatusForMotorizedVehicles(
+        "vehicle_status"
       ),
-      "system_information",
-      List.of(new NoMissingStoreUriInSystemInformation("vehicle_status")),
-      "station_information",
-      List.of(
-        new NoInvalidReferenceToRegionInStationInformation(),
-        new NoInvalidReferenceToStation("station_status")
-      )
-    );
+      new NoInvalidReferenceToPricingPlansInVehicleStatus("vehicle_status")
+    ),
+    "system_information",
+    List.of(new NoMissingStoreUriInSystemInformation("vehicle_status")),
+    "station_information",
+    List.of(
+      new NoInvalidReferenceToRegionInStationInformation(),
+      new NoInvalidReferenceToStation("station_status")
+    )
+  );
 
   protected Version30() {
-    super(VERSION, feeds, customRules);
+    super(VERSION, FEEDS, CUSTOM_RULES);
   }
 
   @Override

@@ -18,7 +18,20 @@
 
 package org.mobilitydata.gbfs.validation.validator.versions;
 
+import java.util.List;
+
 public class VersionFactory {
+
+  private static final List<String> SUPPORTED_VERSIONS_DESC = List.of(
+    "3.1-RC3",
+    "3.0",
+    "2.3",
+    "2.2",
+    "2.1",
+    "2.0",
+    "1.1",
+    "1.0"
+  );
 
   private VersionFactory() {}
 
@@ -38,8 +51,22 @@ public class VersionFactory {
         return new Version23();
       case "3.0":
         return new Version30();
+      case "3.1-RC3":
+        return new Version31RC3();
       default:
         throw new UnsupportedOperationException("Version not implemented");
     }
+  }
+
+  public static Version createLatestVersionSupportingFeed(
+    String feedName,
+    String fallbackVersion
+  ) {
+    return SUPPORTED_VERSIONS_DESC
+      .stream()
+      .map(VersionFactory::createVersion)
+      .filter(version -> version.getFileNames().contains(feedName))
+      .findFirst()
+      .orElse(createVersion(fallbackVersion));
   }
 }
