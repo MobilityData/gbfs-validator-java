@@ -40,9 +40,9 @@ class GbfsJsonValidatorTest {
     Map<String, InputStream> deliveryMap = new HashMap<>();
     ValidationResult result = validator.validate(deliveryMap);
 
-    // The expected error count is 2, because there are two required files
-    // missing in an empty delivery, gbfs.json, and system_information.json
-    Assertions.assertEquals(2, result.summary().errorsCount());
+    // The expected error count is 4: gbfs.json, system_information.json, station_status.json,
+    // and free_bike_status.json are all required (directly or conditionally) but missing.
+    Assertions.assertEquals(4, result.summary().errorsCount());
   }
 
   @Test
@@ -58,6 +58,10 @@ class GbfsJsonValidatorTest {
     deliveryMap.put(
       "system_hours",
       getFixture("fixtures/v1.0/system_hours.json")
+    );
+    deliveryMap.put(
+      "free_bike_status",
+      getFixture("fixtures/v1.0/free_bike_status.json")
     );
 
     ValidationResult result = validator.validate(deliveryMap);
@@ -86,6 +90,10 @@ class GbfsJsonValidatorTest {
       "system_hours",
       getFixture("fixtures/v1.1/system_hours.json")
     );
+    deliveryMap.put(
+      "free_bike_status",
+      getFixture("fixtures/v1.1/free_bike_status.json")
+    );
 
     ValidationResult result = validator.validate(deliveryMap);
 
@@ -112,6 +120,10 @@ class GbfsJsonValidatorTest {
     deliveryMap.put(
       "system_hours",
       getFixture("fixtures/v2.0/system_hours.json")
+    );
+    deliveryMap.put(
+      "free_bike_status",
+      getFixture("fixtures/v2.0/free_bike_status.json")
     );
 
     ValidationResult result = validator.validate(deliveryMap);
@@ -475,7 +487,8 @@ class GbfsJsonValidatorTest {
     Assertions.assertTrue(result.files().get("system_information").required());
     Assertions.assertFalse(result.files().get("system_information").exists());
 
-    Assertions.assertEquals(1, result.summary().errorsCount());
+    // 3 errors: system_information, station_status, and free_bike_status are all missing
+    Assertions.assertEquals(3, result.summary().errorsCount());
   }
 
   @Test
@@ -503,6 +516,16 @@ class GbfsJsonValidatorTest {
     deliveryMap.put(
       "system_information",
       getFixture("fixtures/v2.2/system_information.json")
+    );
+    // Minimal station_status (empty stations) — satisfies the conditional requirement
+    // without triggering custom-rule violations that depend on other files.
+    String minimalStationStatus =
+      "{\"last_updated\":1609866235,\"ttl\":0,\"version\":\"2.2\",\"data\":{\"stations\":[]}}";
+    deliveryMap.put(
+      "station_status",
+      new ByteArrayInputStream(
+        minimalStationStatus.getBytes(java.nio.charset.StandardCharsets.UTF_8)
+      )
     );
 
     ValidationResult result = validator.validate(deliveryMap);
@@ -627,6 +650,128 @@ class GbfsJsonValidatorTest {
       "System error message should indicate read error: " +
       validatorError.message()
     );
+  }
+
+  @Test
+  void testMissingBothStatusFilesV3IsInvalid() {
+    GbfsJsonValidator validator = new GbfsJsonValidator();
+
+    // v3.0 feed with neither station_status nor vehicle_status
+    Map<String, InputStream> deliveryMap = new HashMap<>();
+    deliveryMap.put("gbfs", getFixture("fixtures/v3.0/gbfs.json"));
+    deliveryMap.put(
+      "system_information",
+      getFixture("fixtures/v3.0/system_information.json")
+    );
+
+    ValidationResult result = validator.validate(deliveryMap);
+
+    assertTrue(
+      result.summary().errorsCount() > 0,
+      "Feed missing both station_status and vehicle_status should be invalid"
+    );
+
+    FileValidationResult stationStatus = result.files().get("station_status");
+    FileValidationResult vehicleStatus = result.files().get("vehicle_status");
+
+    assertNotNull(stationStatus);
+    assertNotNull(vehicleStatus);
+    assertTrue(
+      stationStatus.conditionallyRequired(),
+      "station_status should be marked conditionallyRequired when vehicle_status is also absent"
+    );
+    assertTrue(
+      vehicleStatus.conditionallyRequired(),
+      "vehicle_status should be marked conditionallyRequired when station_status is also absent"
+    );
+    assertEquals(1, stationStatus.errorsCount());
+    assertEquals(1, vehicleStatus.errorsCount());
+  }
+
+  @Test
+  void testMissingBothStatusFilesPreV3IsInvalid() {
+    GbfsJsonValidator validator = new GbfsJsonValidator();
+
+    // v2.3 feed with neither station_status nor free_bike_status
+    Map<String, InputStream> deliveryMap = new HashMap<>();
+    deliveryMap.put("gbfs", getFixture("fixtures/v2.3/gbfs.json"));
+    deliveryMap.put(
+      "system_information",
+      getFixture("fixtures/v2.3/system_information.json")
+    );
+
+    ValidationResult result = validator.validate(deliveryMap);
+
+    assertTrue(
+      result.summary().errorsCount() > 0,
+      "Feed missing both station_status and free_bike_status should be invalid"
+    );
+
+    FileValidationResult stationStatus = result.files().get("station_status");
+    FileValidationResult freeBikeStatus = result
+      .files()
+      .get("free_bike_status");
+
+    assertNotNull(stationStatus);
+    assertNotNull(freeBikeStatus);
+    assertTrue(stationStatus.conditionallyRequired());
+    assertTrue(freeBikeStatus.conditionallyRequired());
+    assertEquals(1, stationStatus.errorsCount());
+    assertEquals(1, freeBikeStatus.errorsCount());
+  }
+
+  @Test
+  void testOnlyStationStatusPresentV3IsValid() {
+    GbfsJsonValidator validator = new GbfsJsonValidator();
+
+    // v3.0 dock-based feed — vehicle_status absent, but station_status present
+    Map<String, InputStream> deliveryMap = new HashMap<>();
+    deliveryMap.put("gbfs", getFixture("fixtures/v3.0/gbfs.json"));
+    deliveryMap.put(
+      "system_information",
+      getFixture("fixtures/v3.0/system_information.json")
+    );
+    deliveryMap.put(
+      "station_status",
+      getFixture("fixtures/v3.0/station_status.json")
+    );
+
+    ValidationResult result = validator.validate(deliveryMap);
+
+    FileValidationResult vehicleStatus = result.files().get("vehicle_status");
+    assertNotNull(vehicleStatus);
+    assertFalse(
+      vehicleStatus.required(),
+      "vehicle_status should not be required when station_status is present"
+    );
+    assertEquals(0, vehicleStatus.errorsCount());
+  }
+
+  @Test
+  void testOnlyVehicleStatusPresentV3IsValid() {
+    GbfsJsonValidator validator = new GbfsJsonValidator();
+
+    // v3.0 free-floating feed — station_status absent, but vehicle_status present
+    Map<String, InputStream> deliveryMap = new HashMap<>();
+    deliveryMap.put("gbfs", getFixture("fixtures/v3.0/gbfs.json"));
+    deliveryMap.put(
+      "system_information",
+      getFixture("fixtures/v3.0/system_information.json")
+    );
+    deliveryMap.put(
+      "vehicle_status",
+      getFixture("fixtures/v3.0/vehicle_status.json")
+    );
+
+    ValidationResult result = validator.validate(deliveryMap);
+
+    FileValidationResult stationStatus = result.files().get("station_status");
+    assertNotNull(stationStatus);
+    assertFalse(
+      stationStatus.required(),
+      "station_status should not be required when vehicle_status is present"
+    );
+    assertEquals(0, stationStatus.errorsCount());
   }
 
   // Helper class for testing IOException during read
