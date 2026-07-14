@@ -20,7 +20,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- To use a snapshot, change this to e.g. 3.0.4-SNAPSHOT -->
-        <gbfs-validator.version>3.0.3</gbfs-validator.version>
+        <gbfs-validator.version>3.1.0</gbfs-validator.version>
     </properties>
 
     <repositories>
@@ -42,6 +42,12 @@
         <dependency>
             <groupId>org.mobilitydata</groupId>
             <artifactId>gbfs-validator-java</artifactId>
+            <version>${gbfs-validator.version}</version>
+        </dependency>
+        <!-- Loader: fetches gbfs.json and all linked feed files automatically -->
+        <dependency>
+            <groupId>org.mobilitydata</groupId>
+            <artifactId>gbfs-validator-java-loader</artifactId>
             <version>${gbfs-validator.version}</version>
         </dependency>
     </dependencies>

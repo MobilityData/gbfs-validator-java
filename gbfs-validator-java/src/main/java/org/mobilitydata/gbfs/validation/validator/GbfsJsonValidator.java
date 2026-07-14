@@ -131,6 +131,7 @@ public class GbfsJsonValidator implements GbfsValidator {
 
     List<String> missingFiles = findMissingFiles(version, fileValidations);
     handleMissingFiles(fileValidations, missingFiles, version); // This creates FVRs for missing files
+    checkStatusFilePresence(fileValidations, version);
 
     ValidationSummary summary = new ValidationSummary(
       version.getVersionString(),
@@ -145,6 +146,60 @@ public class GbfsJsonValidator implements GbfsValidator {
     );
 
     return new ValidationResult(summary, fileValidations);
+  }
+
+  /**
+   * Per GBFS spec, a feed must be dock-based, free-floating, or hybrid, so at least one of
+   * station_status / vehicle_status (v3+) or station_status / free_bike_status (pre-v3) must
+   * be present. If neither is present, both are flagged as required with an error.
+   */
+  private void checkStatusFilePresence(
+    Map<String, FileValidationResult> fileValidations,
+    Version version
+  ) {
+    String freeFloatingFile = version.getFileNames().contains("vehicle_status")
+      ? "vehicle_status"
+      : "free_bike_status";
+
+    boolean stationStatusAbsent = !isPresent(fileValidations, "station_status");
+    boolean freeFloatingAbsent = !isPresent(fileValidations, freeFloatingFile);
+
+    if (stationStatusAbsent && freeFloatingAbsent) {
+      markAsConditionallyRequired(fileValidations, "station_status");
+      markAsConditionallyRequired(fileValidations, freeFloatingFile);
+    }
+  }
+
+  private boolean isPresent(
+    Map<String, FileValidationResult> fileValidations,
+    String file
+  ) {
+    FileValidationResult result = fileValidations.get(file);
+    return result != null && result.exists();
+  }
+
+  private void markAsConditionallyRequired(
+    Map<String, FileValidationResult> fileValidations,
+    String file
+  ) {
+    FileValidationResult existing = fileValidations.get(file);
+    if (existing != null) {
+      fileValidations.put(
+        file,
+        new FileValidationResult(
+          existing.file(),
+          false,
+          true,
+          false,
+          1,
+          existing.schema(),
+          null,
+          existing.version(),
+          Collections.emptyList(),
+          Collections.emptyList()
+        )
+      );
+    }
   }
 
   private Version detectVersionFromParsedFeeds(
@@ -357,6 +412,7 @@ public class GbfsJsonValidator implements GbfsValidator {
     return new FileValidationResult(
       feedName,
       supportedFeed && schemaVersion.isFileRequired(feedName),
+      false,
       true,
       0,
       supportedFeed ? schemaVersion.getSchema(feedName).toString() : null,
