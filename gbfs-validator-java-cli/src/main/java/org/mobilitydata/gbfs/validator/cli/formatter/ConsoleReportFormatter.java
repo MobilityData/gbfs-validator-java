@@ -82,6 +82,8 @@ public class ConsoleReportFormatter implements ReportFormatter {
 
       if (fileResult.required()) {
         sb.append(" [REQUIRED]");
+      } else if (fileResult.conditionallyRequired()) {
+        sb.append(" [CONDITIONALLY REQUIRED]");
       }
 
       if (!fileResult.exists()) {
