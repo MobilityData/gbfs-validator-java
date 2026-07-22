@@ -64,7 +64,6 @@ class ValidationResultTest {
     return new FileValidationResult(
       "gbfs",
       true,
-      false,
       true,
       2,
       null,

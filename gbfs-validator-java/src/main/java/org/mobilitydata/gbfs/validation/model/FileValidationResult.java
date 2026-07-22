@@ -27,8 +27,6 @@ import java.util.stream.IntStream;
  * The result of validating a single GBFS file
  * @param file The name of the file that was validated
  * @param required Whether the file is required in the given version of GBFS
- * @param conditionallyRequired Whether the file is conditionally required (e.g. station_status or
- *        vehicle_status must be present — neither is individually required, but at least one must exist)
  * @param exists Whether the file existed in the validation input
  * @param errorsCount The number of errors found while validating the file
  * @param schema The schema used to validate the file
@@ -40,7 +38,6 @@ import java.util.stream.IntStream;
 public record FileValidationResult(
   String file,
   boolean required,
-  boolean conditionallyRequired,
   boolean exists,
   int errorsCount,
   String schema,
@@ -64,8 +61,6 @@ public record FileValidationResult(
       '\'' +
       ", required=" +
       required +
-      ", conditionallyRequired=" +
-      conditionallyRequired +
       ", exists=" +
       exists +
       ", errorsCount=" +
@@ -91,7 +86,6 @@ public record FileValidationResult(
   public boolean sameAs(FileValidationResult other) {
     if (other == null) return false;
     if (required != other.required) return false;
-    if (conditionallyRequired != other.conditionallyRequired) return false;
     if (exists != other.exists) return false;
     if (errorsCount != other.errorsCount) return false; // This should ideally reflect both validation and system errors count
     if (!Objects.equals(file, other.file)) return false;
