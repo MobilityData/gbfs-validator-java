@@ -80,14 +80,13 @@ public class FileValidator {
       return new FileValidationResult(
         feedName,
         isRequired(feedName),
-        false,
         feed != null,
         errorsCount,
         schema.toString(),
         Optional.ofNullable(feed).map(JSONObject::toString).orElse(null),
         version.getVersionString(),
         validationErrors,
-        java.util.Collections.emptyList()
+        java.util.Collections.emptyList() // Added for systemErrors
       );
     }
 
@@ -130,7 +129,6 @@ public class FileValidator {
     return new FileValidationResult(
       file,
       isRequired,
-      false,
       false,
       isRequired ? 1 : 0,
       version.getSchema(file).toString(),
