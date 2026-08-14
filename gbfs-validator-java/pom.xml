@@ -52,7 +52,6 @@
     <properties>
         <jdk.version>17</jdk.version>
         <gbfsGithubUrl>https://github.com/MobilityData/gbfs-json-schema/archive/refs/tags/v4.3.0.zip</gbfsGithubUrl>
-        <schemaVersion>4.3.0</schemaVersion>
 
         <everit-json-schema.version>1.14.6</everit-json-schema.version>
         <slf4j.version>2.0.17</slf4j.version>
@@ -199,7 +198,6 @@
                         <configuration>
                             <environmentVariables>
                                 <GITHUB_URL>${gbfsGithubUrl}</GITHUB_URL>
-                                <SCHEMA_VERSION>${schemaVersion}</SCHEMA_VERSION>
                                 <DESTINATION_PATH>src/main/resources/schema</DESTINATION_PATH>
                             </environmentVariables>
                             <executable>./bin/gbfs-download-extract.sh</executable>
