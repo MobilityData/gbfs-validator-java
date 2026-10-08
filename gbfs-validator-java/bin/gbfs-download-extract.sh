@@ -13,7 +13,6 @@ validate () {
 }
 
 validate "GITHUB_URL" ${GITHUB_URL}
-validate "SCHEMA_VERSION" ${SCHEMA_VERSION}
 validate "DESTINATION_PATH" ${DESTINATION_PATH}
 
 ZIP_FILE=downloaded.zip
@@ -51,9 +50,15 @@ if [ -f ${ZIP_FILE} ]; then
     echo "Remove zipfile ${ZIP_FILE}" &&
     rm ${ZIP_FILE} &&
 
+    # This script empties $DESTINATION_PATH before downloading, so the unzip
+    # leaves exactly one gbfs-json-schema-<version> folder in it. Resolve that
+    # folder rather than naming the version, so the version does not have to be
+    # repeated outside the download URL. Resolve it before the move, since the
+    # move can lift up entries that would themselves match the glob.
     echo "Remove intermediate folder" &&
-    mv ${DESTINATION_PATH}/gbfs-json-schema-${SCHEMA_VERSION}/* ${DESTINATION_PATH} &&
-    rm -rf ${DESTINATION_PATH}/gbfs-json-schema-${SCHEMA_VERSION}
+    SCHEMA_DIR=$(ls -d ${DESTINATION_PATH}/gbfs-json-schema-*) &&
+    mv "${SCHEMA_DIR}"/* ${DESTINATION_PATH} &&
+    rm -rf "${SCHEMA_DIR}"
 
     echo "JSON schema extracted to $DESTINATION_PATH"
     } ||
