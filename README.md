@@ -73,3 +73,18 @@ List of additional rules:
 * `NoMissingCurrentRangeMetersInVehicleStatusForMotorizedVehicles`
 * `NoMissingStoreUriInSystemInformation`
 
+## Releasing
+
+The recommended way to release is via the repository's [Releases](https://github.com/MobilityData/gbfs-validator-java/releases) page. 
+Publishing from there with tag `vX.Y.Z` triggers `release.yml`, which sets the version from the tag, signs and deploys the artifacts to Maven Central, and attaches the CLI jar to the release. 
+The project version is derived from that tag, so no version is ever edited in a pom.
+
+Every push to `master` already publishes `X.Y.Z-SNAPSHOT` to Maven Central, to let developers have the most recent code.
+Cut a release only when you want the changes to make their way to the user.
+
+### Picking up a new schema version
+
+To pick up a new [gbfs-json-schema](https://github.com/MobilityData/gbfs-json-schema) release, point this property in `gbfs-validator-java/pom.xml` at the new tag and merge to `master`:
+
+    <gbfsGithubUrl>https://github.com/MobilityData/gbfs-json-schema/archive/refs/tags/v4.3.0.zip</gbfsGithubUrl>
+
