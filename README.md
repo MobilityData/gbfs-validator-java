@@ -8,6 +8,8 @@ Validate GBFS feeds. Intended as Java native alternative to https://github.com/M
 
 Uses the official json schema to validate files.
 
+Maven library available at https://central.sonatype.com/artifact/org.mobilitydata/gbfs-validator-java.
+
 ## Example
 
 See the [`example/`](example/) directory for a working Maven project that depends on this library as a published artifact.
