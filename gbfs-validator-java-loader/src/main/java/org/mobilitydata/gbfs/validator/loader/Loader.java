@@ -45,6 +45,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -67,6 +68,7 @@ public class Loader {
   private final CloseableHttpClient httpClient;
   private final ExecutorService executorService;
   private final Map<String, String> customHeaders;
+  private final boolean publicNetworkOnly;
 
   private String getFileName(URI uri) {
     String path = uri.getPath();
@@ -102,13 +104,54 @@ public class Loader {
     int threadPoolSize,
     Map<String, String> customHeaders
   ) {
+    this(
+      maxTotalConnections,
+      maxConnectionsPerRoute,
+      connectTimeoutSeconds,
+      responseTimeoutSeconds,
+      threadPoolSize,
+      customHeaders,
+      false
+    );
+  }
+
+  /**
+   * Creates a Loader with custom configuration.
+   *
+   * @param maxTotalConnections maximum number of total HTTP connections in the pool
+   * @param maxConnectionsPerRoute maximum number of connections per route
+   * @param connectTimeoutSeconds connection timeout in seconds
+   * @param responseTimeoutSeconds response timeout in seconds
+   * @param threadPoolSize number of threads for parallel loading
+   * @param customHeaders custom HTTP headers to include in all requests
+   * @param publicNetworkOnly when true, only http(s) URLs on public internet addresses are
+   *     loaded: local files and hosts resolving to private, loopback or link-local addresses
+   *     are rejected, including feed URLs listed in the discovery file and redirect targets.
+   *     Enable it when the URLs come from untrusted callers, as in the HTTP API.
+   */
+  public Loader(
+    int maxTotalConnections,
+    int maxConnectionsPerRoute,
+    int connectTimeoutSeconds,
+    int responseTimeoutSeconds,
+    int threadPoolSize,
+    Map<String, String> customHeaders,
+    boolean publicNetworkOnly
+  ) {
     this.customHeaders =
       customHeaders != null ? customHeaders : new HashMap<>();
+    this.publicNetworkOnly = publicNetworkOnly;
 
+    PoolingHttpClientConnectionManagerBuilder connectionManagerBuilder =
+      PoolingHttpClientConnectionManagerBuilder
+        .create()
+        .setMaxConnTotal(maxTotalConnections)
+        .setMaxConnPerRoute(maxConnectionsPerRoute);
+    if (publicNetworkOnly) {
+      connectionManagerBuilder.setDnsResolver(new PublicAddressDnsResolver());
+    }
     PoolingHttpClientConnectionManager connectionManager =
-      new PoolingHttpClientConnectionManager();
-    connectionManager.setMaxTotal(maxTotalConnections);
-    connectionManager.setDefaultMaxPerRoute(maxConnectionsPerRoute);
+      connectionManagerBuilder.build();
 
     RequestConfig requestConfig = RequestConfig
       .custom()
@@ -301,6 +344,16 @@ public class Loader {
     String url = fileURI.toString();
 
     if ("file".equals(fileURI.getScheme())) {
+      if (publicNetworkOnly) {
+        List<LoaderError> errors = new ArrayList<>();
+        errors.add(
+          new LoaderError(
+            "UNSUPPORTED_SCHEME",
+            "Local files are not allowed, use an http or https URL"
+          )
+        );
+        return new LoadedFile(fileName, url, null, null, errors);
+      }
       try {
         InputStream stream = getFileInputStream(fileURI);
         return new LoadedFile(fileName, url, stream, null, new ArrayList<>());
