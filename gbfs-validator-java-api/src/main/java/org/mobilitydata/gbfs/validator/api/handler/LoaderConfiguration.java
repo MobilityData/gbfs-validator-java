@@ -35,7 +35,8 @@ public class LoaderConfiguration {
       properties.getHttp().getConnectTimeoutSeconds(),
       properties.getHttp().getResponseTimeoutSeconds(),
       properties.getThreadPool().getSize(),
-      properties.getHttp().getHeaders()
+      properties.getHttp().getHeaders(),
+      properties.isPublicNetworkOnly()
     );
   }
 }

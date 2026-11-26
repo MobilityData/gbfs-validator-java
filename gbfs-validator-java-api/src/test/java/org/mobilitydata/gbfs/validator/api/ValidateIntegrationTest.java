@@ -18,7 +18,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest(classes = OpenApiGeneratorApplication.class)
+// The test feeds are local files, which the API refuses by default (loader.public-network-only).
+@SpringBootTest(
+  classes = OpenApiGeneratorApplication.class,
+  properties = "loader.public-network-only=false"
+)
 @AutoConfigureMockMvc
 public class ValidateIntegrationTest {
 

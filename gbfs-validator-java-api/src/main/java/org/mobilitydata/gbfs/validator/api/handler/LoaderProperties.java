@@ -32,6 +32,23 @@ public class LoaderProperties {
   private Http http = new Http();
   private ThreadPool threadPool = new ThreadPool();
 
+  /**
+   * Only load http(s) URLs on public internet addresses: reject local files and hosts
+   * resolving to private, loopback or link-local addresses (including URLs listed in the
+   * discovery file and redirect targets). On by default, because API callers are untrusted.
+   * Set loader.public-network-only=false (LOADER_PUBLICNETWORKONLY=false) to validate feeds
+   * on a private network.
+   */
+  private boolean publicNetworkOnly = true;
+
+  public boolean isPublicNetworkOnly() {
+    return publicNetworkOnly;
+  }
+
+  public void setPublicNetworkOnly(boolean publicNetworkOnly) {
+    this.publicNetworkOnly = publicNetworkOnly;
+  }
+
   public Http getHttp() {
     return http;
   }
