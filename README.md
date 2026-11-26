@@ -75,6 +75,13 @@ List of additional rules:
 * `NoMissingCurrentRangeMetersInVehicleStatusForMotorizedVehicles`
 * `NoMissingStoreUriInSystemInformation`
 
+## API
+
+`gbfs-validator-java-api` serves the validator over HTTP (`POST /validate`), from the spec in `gbfs-validator-java-api/src/main/resources/public/openapi.yaml`.
+
+- API docs for MobilityData's hosted environments: https://mobilitydata.github.io/gbfs-validator-java/SwaggerUI/index.html (`docs/SwaggerUI/`).
+- The API also serves Swagger UI at `/swagger-ui/index.html` and the spec at `/v3/api-docs`. To turn them off in your deployment, set `SPRINGDOC_SWAGGERUI_ENABLED=false` and `SPRINGDOC_APIDOCS_ENABLED=false`.
+
 ## Releasing
 
 The recommended way to release is via the repository's [Releases](https://github.com/MobilityData/gbfs-validator-java/releases) page. 
