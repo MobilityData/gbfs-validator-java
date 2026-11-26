@@ -71,7 +71,7 @@ public class PublicAddressDnsResolver implements DnsResolver {
    *
    * @param address the resolved address
    * @return false for loopback, wildcard, private, link-local, multicast, carrier-grade NAT,
-   *     benchmarking, IETF-reserved and IPv6 unique local addresses
+   *     benchmarking, documentation, IETF-reserved and IPv6 unique local addresses
    */
   public static boolean isPublic(InetAddress address) {
     if (
@@ -92,7 +92,10 @@ public class PublicAddressDnsResolver implements DnsResolver {
         a == 0 || // "this" network
         (a == 100 && b >= 64 && b <= 127) || // carrier-grade NAT
         (a == 192 && b == 0 && c == 0) || // IETF protocol assignments
+        (a == 192 && b == 0 && c == 2) || // documentation (TEST-NET-1)
         (a == 198 && (b == 18 || b == 19)) || // benchmarking
+        (a == 198 && b == 51 && c == 100) || // documentation (TEST-NET-2)
+        (a == 203 && b == 0 && c == 113) || // documentation (TEST-NET-3)
         a >= 240 // reserved and broadcast
       );
     }
